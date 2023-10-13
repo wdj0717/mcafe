@@ -1,0 +1,29 @@
+server:
+  port: 8080
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://ap-northeast.connect.psdb.cloud/m_cafe?sslMode=VERIFY_IDENTITY
+    username: secret
+    password: secret
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+
+web-client:
+  connect-timeout: 5000
+  read-timeout: 10000
+  write-timeout: 10000
+
+u-chef:
+  domain: https://uchef.co.kr/
+  path:
+    menu: /webApp.action?mode=5151&shop_member_seq=1859&project_seq={project_seq}
+    menu-detail: /webApp.action?mode=5170&item_code={menu_code}&shop_member_seq=1859
