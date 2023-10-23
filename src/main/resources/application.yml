@@ -10,7 +10,7 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
   datasource:
-    url: jdbc:postgresql://db.ybnlgruhcshynouuxnyo.supabase.co:5432/mcafe
+    url: jdbc:postgresql://db.ybnlgruhcshynouuxnyo.supabase.co:5432/postgres?currentSchema=mcafe
     username: secret
     password: secret
   mvc:
