@@ -38,6 +38,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
+    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    implementation("org.postgresql:postgresql:42.6.0")
+
 
     testImplementation("io.mockk:mockk:1.12.7")
     testImplementation("io.kotest:kotest-runner-junit5:5.4.2")
