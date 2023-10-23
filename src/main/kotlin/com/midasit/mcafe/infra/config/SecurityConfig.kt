@@ -28,7 +28,8 @@ class SecurityConfig {
                 .cors { it.disable() }
                 .authorizeRequests {
                     it.requestMatchers("/api-docs/**", "/health", "/swagger-ui.html",
-                            "/swagger-ui/**", "/v3/**", "/actuator/**")
+                            "/swagger-ui/**", "/v3/**", "/actuator/**",
+                            "/menu")
                             .permitAll()
                             .anyRequest().authenticated()
                 }
