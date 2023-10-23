@@ -11,8 +11,8 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     url: jdbc:postgresql://db.ybnlgruhcshynouuxnyo.supabase.co:5432/postgres?currentSchema=mcafe
-    username: secret
-    password: secret
+    username: ${MCAFE_DB_USERNAME}
+    password: ${MCAFE_DB_PASSWORD}
   mvc:
     path match:
       matching-strategy: ant_path_matcher
