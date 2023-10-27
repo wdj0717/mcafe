@@ -4,17 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 class OrderButtonComp(
         @JsonProperty("item_code")
-        val itemCode: String,
-        @JsonProperty("index")
-        val index: Long,
+        val code: String,
         @JsonProperty("unit")
         val unit: String,
         @JsonProperty("price")
         val price: Long,
-        @JsonProperty("name")
-        val name: String,
         @JsonProperty("menutitle")
-        val menuitle: String,
+        val name: String,
         @JsonProperty("stock")
         val stock: Long
 )

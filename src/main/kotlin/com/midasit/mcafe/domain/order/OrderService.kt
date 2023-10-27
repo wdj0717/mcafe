@@ -12,4 +12,8 @@ class OrderService(
     fun getMenuList(): OrderResponse.GetMenuList {
         return OrderResponse.GetMenuList(uChefComponent.getMenuList())
     }
+
+    fun getMenuInfo(menuCode: Long): OrderResponse.GetMenuInfo {
+        return OrderResponse.GetMenuInfo(uChefComponent.getMenuInfo(menuCode))
+    }
 }

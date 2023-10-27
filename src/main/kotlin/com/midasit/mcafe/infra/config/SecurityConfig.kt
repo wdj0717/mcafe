@@ -29,7 +29,7 @@ class SecurityConfig {
                 .authorizeRequests {
                     it.requestMatchers("/api-docs/**", "/health", "/swagger-ui.html",
                             "/swagger-ui/**", "/v3/**", "/actuator/**",
-                            "/menu")
+                            "/menu/**")
                             .permitAll()
                             .anyRequest().authenticated()
                 }
