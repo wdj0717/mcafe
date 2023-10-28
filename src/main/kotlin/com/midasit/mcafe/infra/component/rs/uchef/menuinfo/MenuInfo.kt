@@ -2,15 +2,15 @@ package com.midasit.mcafe.infra.component.rs.uchef.menuinfo
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-class MenuInfo(
+data class MenuInfo(
         @JsonProperty("item_code")
-        val itemCode: String,
+        val code: String,
         @JsonProperty("item_name")
-        val itemName: String,
+        val name: String,
         @JsonProperty("item_price")
-        val itemPrice: Long,
+        val price: Long,
         @JsonProperty("item_stock")
-        val itemStock: Long,
+        val stock: Long,
         @JsonProperty("option_group")
         val optionGroupList: ArrayList<OptionGroup>
 )

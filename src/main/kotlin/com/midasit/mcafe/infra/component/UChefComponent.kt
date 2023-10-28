@@ -55,15 +55,16 @@ class UChefComponent(private val webClient: WebClient,
         val result = arrayListOf<MenuCategoryDto>()
 
         uChefMenuRs.searchResult.jsonData.pageList.page.forEach { page ->
-            val name = page.name
+            val menuCategoryName = page.name
             val menuList = arrayListOf<MenuDto>()
             page.listComp.listRow.forEach { row ->
                 row.orderButtonComp.forEach { menu ->
-                    val menuDto = MenuDto(menu.name, menu.code, menu.price, menu.unit, menu.stock)
+                    val (menuCode, menuUnit, menuPrice, menuName, menuStock) = menu
+                    val menuDto = MenuDto(menuName, menuCode, menuPrice, menuUnit, menuStock)
                     menuList.add(menuDto)
                 }
             }
-            val menuCategoryDto = MenuCategoryDto(name, menuList)
+            val menuCategoryDto = MenuCategoryDto(menuCategoryName, menuList)
             result.add(menuCategoryDto)
         }
 
@@ -86,18 +87,21 @@ class UChefComponent(private val webClient: WebClient,
         val optionGroupDtoList = arrayListOf<OptionGroupDto>()
 
         val menuInfo = uChefMenuInfoRs.searchResult.menuInfoList[0]
-        val optionGroupList = menuInfo.optionGroupList
+        val (menuCode, menuName, menuPrice, menuStock, optionGroupList) = menuInfo
         optionGroupList.forEach { optionGroup ->
             val optionDtoList = arrayListOf<OptionDto>()
-            optionGroup.optionList.forEach { option ->
-                val optionDto = OptionDto(option.name, option.code, option.price, option.default)
+            val (optionGroupName, selectMin, selectMax, optionList) = optionGroup
+            optionList.forEach { option ->
+                val (optionName, optionCode, optionPrice, optionDefault) = option
+                val optionDto = OptionDto(optionName, optionCode, optionPrice, optionDefault)
                 optionDtoList.add(optionDto)
             }
-            val optionGroupDto = OptionGroupDto(optionGroup.name, optionGroup.selectMin, optionGroup.selectMax, optionDtoList)
+
+            val optionGroupDto = OptionGroupDto(optionGroupName, selectMin, selectMax, optionDtoList)
             optionGroupDtoList.add(optionGroupDto)
         }
 
-        return MenuInfoDto(menuInfo.itemName, menuInfo.itemCode, menuInfo.itemPrice, menuInfo.itemStock, optionGroupDtoList)
+        return MenuInfoDto(menuName, menuCode, menuPrice, menuStock, optionGroupDtoList)
     }
 
 }

@@ -1,6 +1,6 @@
 package com.midasit.mcafe.domain.order.dto
 
-class MenuInfoDto(
+data class MenuInfoDto(
         val name: String,
         val code: String,
         val price: Long,
