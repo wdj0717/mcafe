@@ -2,6 +2,7 @@ package com.midasit.mcafe.domain.member
 
 import com.midasit.mcafe.domain.member.dto.MemberRequest
 import com.midasit.mcafe.infra.config.jwt.JwtTokenProvider
+import com.midasit.mcafe.model.PasswordEncryptUtil
 import com.midasit.mcafe.model.Role
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -32,15 +33,15 @@ class MemberServiceTest : BehaviorSpec({
     }
 
     given("로그인 정보를 받아온다.") {
-        val request = MemberRequest.Login("010-1234-5678", "1q2w3e4r5t")
+        var request = MemberRequest.Login("010-1234-5678", "1q2w3e4r5t")
         val member = Member(
             phone = request.phone,
             name = "name",
-            password = request.password,
+            password = PasswordEncryptUtil.encrypt(request.password),
             role = Role.USER
         )
         `when`("로그인 정보가 있을때") {
-            every { memberRepository.findByPhoneAndPassword(any(), any()) } returns member
+            every { memberRepository.findByPhone(any()) } returns member
             every { jwtTokenProvider.generateAccessToken(any()) } returns "token"
             val result = memberService.login(request)
             then("로그인이 완료된다.") {
@@ -51,12 +52,23 @@ class MemberServiceTest : BehaviorSpec({
         }
 
         `when`("로그인 정보가 없을때") {
-            every { memberRepository.findByPhoneAndPassword(any(), any()) } returns null
+            every { memberRepository.findByPhone(any()) } returns null
             val exception = shouldThrow<Exception> {
                 memberService.login(request)
             }
             then("로그인이 실패한다.") {
                 exception.message shouldBe "로그인 정보가 없습니다."
+            }
+        }
+
+        request = MemberRequest.Login("010-1234-5678", "1q2w3e4r")
+        `when`("비밀번호가 틀렸을때") {
+            every { memberRepository.findByPhone(any()) } returns member
+            val exception = shouldThrow<Exception> {
+                memberService.login(request)
+            }
+            then("로그인이 실패한다.") {
+                exception.message shouldBe "비밀번호가 일치하지 않습니다."
             }
         }
     }

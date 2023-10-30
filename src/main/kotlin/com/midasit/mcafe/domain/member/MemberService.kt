@@ -4,6 +4,7 @@ import com.midasit.mcafe.domain.member.dto.LoginDto
 import com.midasit.mcafe.domain.member.dto.MemberDto
 import com.midasit.mcafe.domain.member.dto.MemberRequest
 import com.midasit.mcafe.infra.config.jwt.JwtTokenProvider
+import com.midasit.mcafe.model.PasswordEncryptUtil
 import com.midasit.mcafe.model.Role
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,7 +28,10 @@ class MemberService(
     }
 
     fun login(request: MemberRequest.Login): LoginDto {
-        return memberRepository.findByPhoneAndPassword(request.phone, request.password)?.let { member ->
+        return memberRepository.findByPhone(request.phone)?.let { member ->
+            if(PasswordEncryptUtil.match(request.password, member.password).not()) {
+                throw Exception("비밀번호가 일치하지 않습니다.")
+            }
             val accessToken = jwtTokenProvider.generateAccessToken(member.phone)
             LoginDto(phone = member.phone, name = member.name, token = accessToken)
         } ?: throw Exception("로그인 정보가 없습니다.")
