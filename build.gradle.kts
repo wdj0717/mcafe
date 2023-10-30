@@ -42,6 +42,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
     // https://mvnrepository.com/artifact/org.postgresql/postgresql
     implementation("org.postgresql:postgresql:42.6.0")
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
 
 
     testImplementation("io.mockk:mockk:1.12.7")

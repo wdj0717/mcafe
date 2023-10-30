@@ -77,7 +77,7 @@ class JwtTokenProvider {
     }
 
     fun resolveToken(request: HttpServletRequest): String? {
-        val bearerToken: String = request.getHeader(HttpHeaders.AUTHORIZATION)
+        val bearerToken: String = request.getHeader(HttpHeaders.AUTHORIZATION) ?: return null
         return if (!bearerToken.startsWith(TOKEN_SCHEME)) {
             null
         } else bearerToken.replace(TOKEN_SCHEME, StringUtils.EMPTY)

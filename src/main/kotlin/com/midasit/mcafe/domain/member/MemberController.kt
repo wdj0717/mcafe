@@ -22,6 +22,6 @@ class MemberController(private val memberService: MemberService) {
     @PostMapping("/login")
     fun login(@RequestBody request: MemberRequest.Login): MemberResponse.Login {
         val login = memberService.login(request)
-        return MemberResponse.Login(name = login.name, phone = login.phone)
+        return MemberResponse.Login(name = login.name, phone = login.phone, token = login.token)
     }
 }

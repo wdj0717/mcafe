@@ -1,5 +1,6 @@
 package com.midasit.mcafe.domain.member
 
+import com.midasit.mcafe.infra.converter.PasswordConverter
 import com.midasit.mcafe.model.BaseEntity
 import com.midasit.mcafe.model.Role
 import jakarta.persistence.*
@@ -24,6 +25,7 @@ class Member(
         private set
 
     @Column(nullable = false)
+    @Convert(converter = PasswordConverter::class)
     var password: String = password
         private set
 }

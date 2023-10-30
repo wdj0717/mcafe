@@ -15,6 +15,7 @@ class MemberService(
     private val jwtTokenProvider: JwtTokenProvider
 ) {
 
+    @Transactional
     fun signup(request: MemberRequest.Signup) : MemberDto {
         val member = Member(
             phone = request.phone,
