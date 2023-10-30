@@ -23,10 +23,12 @@ web-client:
   write-timeout: 10000
 
 u-chef:
+  shop-member-seq: 1859
   domain: https://uchef.co.kr/
   path:
-    menu: /webApp.action?mode=5151&shop_member_seq=1859&project_seq={project_seq}
-    menu-detail: /webApp.action?mode=5170&item_code={menu_code}&shop_member_seq=1859
+    project-seq: /webApp.action?shop_member_seq={shop_member_seq}&mode=5150
+    menu: /webApp.action?mode=5151&shop_member_seq={shop_member_seq}&project_seq={project_seq}
+    menu-info: /webApp.action?mode=5170&item_code={menu_code}&shop_member_seq={shop_member_seq}
 
 jwt:
   secret:

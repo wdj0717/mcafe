@@ -29,10 +29,11 @@ class SecurityConfig {
             .authorizeRequests {
                 it.requestMatchers(
                     "/api-docs/**", "/health", "/swagger-ui.html",
-                    "/swagger-ui/**", "/v3/**", "/actuator/**"
+                    "/swagger-ui/**", "/v3/**", "/actuator/**",
+                    "/menu/**"
                 )
                     .permitAll()
-                    .requestMatchers("/member/signup","/member/login")
+                    .requestMatchers("/member/signup", "/member/login")
                     .permitAll()
                     .anyRequest().authenticated()
             }
