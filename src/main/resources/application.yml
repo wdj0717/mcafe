@@ -13,6 +13,11 @@ spring:
     url: ${MCAFE_DB_URL}
     username: ${MCAFE_DB_USERNAME}
     password: ${MCAFE_DB_PASSWORD}
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 1
+      max-lifetime: 120000
+      maximum-pool-size: 4
   mvc:
     path match:
       matching-strategy: ant_path_matcher
@@ -27,5 +32,7 @@ u-chef:
   domain: https://uchef.co.kr/
   path:
     project-seq: /webApp.action?shop_member_seq={shop_member_seq}&mode=5150
+    security-id: /webApp.action?mode=7100&shop_member_seq={shop_member_seq}&phone_id={phone}&project_seq={project_seq}
+    login: /webApp.action?mode=7100&shop_member_seq={shop_member_seq}&phone_id={phone}&passwd={password}&project_seq={project_seq}
     menu: /webApp.action?mode=5151&shop_member_seq={shop_member_seq}&project_seq={project_seq}
     menu-info: /webApp.action?mode=5170&item_code={menu_code}&shop_member_seq={shop_member_seq}
