@@ -2,7 +2,7 @@ package com.midasit.mcafe.infra.component.rs.uchef.menuinfo
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-class Option(
+data class Option(
         @JsonProperty("option_name")
         val name: String,
         @JsonProperty("option_seq")

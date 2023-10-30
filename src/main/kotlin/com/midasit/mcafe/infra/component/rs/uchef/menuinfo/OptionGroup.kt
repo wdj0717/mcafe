@@ -2,7 +2,7 @@ package com.midasit.mcafe.infra.component.rs.uchef.menuinfo
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-class OptionGroup (
+data class OptionGroup (
         @JsonProperty("group_name")
         val name: String,
         @JsonProperty("group_min")

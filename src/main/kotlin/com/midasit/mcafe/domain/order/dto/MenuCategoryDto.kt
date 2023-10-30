@@ -1,6 +1,6 @@
 package com.midasit.mcafe.domain.order.dto
 
-class MenuCategoryDto(
+data class MenuCategoryDto(
         val name: String,
         val menuList: ArrayList<MenuDto>
 )
