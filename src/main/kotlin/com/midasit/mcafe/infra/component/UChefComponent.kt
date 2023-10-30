@@ -1,9 +1,9 @@
 package com.midasit.mcafe.infra.component
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.midasit.mcafe.domain.order.dto.MenuCategoryDto
-import com.midasit.mcafe.domain.order.dto.MenuDto
+import com.midasit.mcafe.domain.order.dto.*
 import com.midasit.mcafe.infra.component.rs.uchef.menu.UChefMenuRs
+import com.midasit.mcafe.infra.component.rs.uchef.menuinfo.UChefMenuInfoRs
 import com.midasit.mcafe.infra.component.rs.uchef.projectSeq.UChefProjectSeqRs
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -13,13 +13,15 @@ import org.springframework.web.reactive.function.client.WebClient
 class UChefComponent(private val webClient: WebClient,
                      private val objectMapper: ObjectMapper,
                      @Value("\${u-chef.shop-member-seq}")
-                     private val memberSeq: Int,
+                     private val shopMemberSeq: Int,
                      @Value("\${u-chef.domain}")
                      private val uChefDomain: String,
                      @Value("\${u-chef.path.project-seq}")
                      private val uChefProjectSeqPath: String,
                      @Value("\${u-chef.path.menu}")
-                     private val uChefMenuPath: String) {
+                     private val uChefMenuPath: String,
+                     @Value("\${u-chef.path.menu-info}")
+                     private val uChefMenuInfoPath: String) {
 
     private fun createUChefClient(): WebClient {
         return webClient.mutate().baseUrl(uChefDomain).build()
@@ -28,7 +30,7 @@ class UChefComponent(private val webClient: WebClient,
     private fun getProjectSeq(): Int {
         val res = createUChefClient()
                 .get()
-                .uri(uChefProjectSeqPath, memberSeq)
+                .uri(uChefProjectSeqPath, shopMemberSeq)
                 .retrieve()
                 .bodyToMono(String::class.java)
                 .block()
@@ -40,7 +42,7 @@ class UChefComponent(private val webClient: WebClient,
     fun getMenuList(): ArrayList<MenuCategoryDto> {
         val res = createUChefClient()
                 .get()
-                .uri(uChefMenuPath, memberSeq, getProjectSeq())
+                .uri(uChefMenuPath, shopMemberSeq, getProjectSeq())
                 .retrieve()
                 .bodyToMono(String::class.java)
                 .block()
@@ -53,18 +55,53 @@ class UChefComponent(private val webClient: WebClient,
         val result = arrayListOf<MenuCategoryDto>()
 
         uChefMenuRs.searchResult.jsonData.pageList.page.forEach { page ->
-            val name = page.name
+            val menuCategoryName = page.name
             val menuList = arrayListOf<MenuDto>()
             page.listComp.listRow.forEach { row ->
                 row.orderButtonComp.forEach { menu ->
-                    val menuDto = MenuDto(menu.name, menu.itemCode, menu.price, menu.unit, menu.stock)
+                    val (menuCode, menuUnit, menuPrice, menuName, menuStock) = menu
+                    val menuDto = MenuDto(menuName, menuCode, menuPrice, menuUnit, menuStock)
                     menuList.add(menuDto)
                 }
             }
-            val menuCategoryDto = MenuCategoryDto(name, menuList)
+            val menuCategoryDto = MenuCategoryDto(menuCategoryName, menuList)
             result.add(menuCategoryDto)
         }
 
         return result
     }
+
+    fun getMenuInfo(menuCode: Long): MenuInfoDto {
+        val res = createUChefClient()
+                .get()
+                .uri(uChefMenuInfoPath, menuCode, shopMemberSeq)
+                .retrieve()
+                .bodyToMono(String::class.java)
+                .block()
+        val uChefMenuInfoRs = objectMapper.readValue(res, UChefMenuInfoRs::class.java)
+
+        return parseMenuInfo(uChefMenuInfoRs)
+    }
+
+    private fun parseMenuInfo(uChefMenuInfoRs: UChefMenuInfoRs): MenuInfoDto {
+        val optionGroupDtoList = arrayListOf<OptionGroupDto>()
+
+        val menuInfo = uChefMenuInfoRs.searchResult.menuInfoList[0]
+        val (menuCode, menuName, menuPrice, menuStock, optionGroupList) = menuInfo
+        optionGroupList.forEach { optionGroup ->
+            val optionDtoList = arrayListOf<OptionDto>()
+            val (optionGroupName, selectMin, selectMax, optionList) = optionGroup
+            optionList.forEach { option ->
+                val (optionName, optionCode, optionPrice, optionDefault) = option
+                val optionDto = OptionDto(optionName, optionCode, optionPrice, optionDefault)
+                optionDtoList.add(optionDto)
+            }
+
+            val optionGroupDto = OptionGroupDto(optionGroupName, selectMin, selectMax, optionDtoList)
+            optionGroupDtoList.add(optionGroupDto)
+        }
+
+        return MenuInfoDto(menuName, menuCode, menuPrice, menuStock, optionGroupDtoList)
+    }
+
 }
