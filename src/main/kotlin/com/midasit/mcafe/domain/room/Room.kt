@@ -6,11 +6,10 @@ import com.midasit.mcafe.model.RoomStatus
 import jakarta.persistence.*
 
 @Entity
+@Table(name = "room", uniqueConstraints = [UniqueConstraint(columnNames = ["name", "status"])])
 class Room(
-        @Column(nullable = false)
-        val name: String,
-        @Column(nullable = false)
-        val password: String,
+        name: String,
+        password: String,
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "host_id", nullable = false, foreignKey = ForeignKey(name = "fk_room_host_id"))
         val host: Member,
@@ -21,4 +20,12 @@ class Room(
     @Column(name = "room_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
+
+    @Column(nullable = false)
+    var name: String = name
+        private set
+
+    @Column(nullable = false)
+    var password: String = password
+        private set
 }

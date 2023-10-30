@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:mcafe;INIT=CREATE SCHEMA IF NOT EXISTS MCAFE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        format_sql: true
+
+
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+web-client:
+  connect-timeout: 5000
+  read-timeout: 10000
+  write-timeout: 10000
+
+u-chef:
+  domain: https://uchef.co.kr/
+  path:
+    menu: /webApp.action?mode=5151&shop_member_seq=1859&project_seq={project_seq}
+    menu-detail: /webApp.action?mode=5170&item_code={menu_code}&shop_member_seq=1859

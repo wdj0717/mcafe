@@ -27,3 +27,13 @@ u-chef:
   path:
     menu: /webApp.action?mode=5151&shop_member_seq=1859&project_seq={project_seq}
     menu-detail: /webApp.action?mode=5170&item_code={menu_code}&shop_member_seq=1859
+
+jwt:
+  secret:
+    key: ENC(wo85QhTHIrilTgPhSHmBKg==)
+  access:
+    token:
+      expiration: 30
+  refresh:
+    token:
+      expiration: 30

@@ -11,9 +11,7 @@ import jakarta.persistence.*
 class Order(
         @Column(nullable = false)
         val orderKey: String,
-        @Column(name = "status")
-        @Enumerated(EnumType.STRING)
-        val status: OrderStatus,
+        status: OrderStatus,
         @Column(nullable = false)
         val menuCode: String,
         @ManyToOne(fetch = FetchType.LAZY)
@@ -27,4 +25,9 @@ class Order(
     @Column(name = "order_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    var status: OrderStatus = status
+        private set
 }
