@@ -36,3 +36,13 @@ u-chef:
     login: /webApp.action?mode=7100&shop_member_seq={shop_member_seq}&phone_id={phone}&passwd={password}&project_seq={project_seq}
     menu: /webApp.action?mode=5151&shop_member_seq={shop_member_seq}&project_seq={project_seq}
     menu-info: /webApp.action?mode=5170&item_code={menu_code}&shop_member_seq={shop_member_seq}
+
+jwt:
+  secret:
+    key: ENC(wo85QhTHIrilTgPhSHmBKg==)
+  access:
+    token:
+      expiration: 30
+  refresh:
+    token:
+      expiration: 30

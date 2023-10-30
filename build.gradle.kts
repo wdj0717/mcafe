@@ -35,17 +35,22 @@ dependencies {
     runtimeOnly("com.mysql:mysql-connector-j")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("io.jsonwebtoken:jjwt:0.9.1")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
     // https://mvnrepository.com/artifact/org.postgresql/postgresql
     implementation("org.postgresql:postgresql:42.6.0")
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
 
 
     testImplementation("io.mockk:mockk:1.12.7")
+    testImplementation("com.ninja-squad:springmockk:3.0.1")
     testImplementation("io.kotest:kotest-runner-junit5:5.4.2")
     testImplementation("io.kotest:kotest-assertions-core:5.4.2")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
+    testImplementation("com.h2database:h2:2.1.214")
 }
 
 tasks.withType<KotlinCompile> {
