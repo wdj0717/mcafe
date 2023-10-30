@@ -2,9 +2,11 @@ package com.midasit.mcafe.infra.component
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.midasit.mcafe.domain.order.dto.*
+import com.midasit.mcafe.infra.component.rs.uchef.login.UChefLoginRs
 import com.midasit.mcafe.infra.component.rs.uchef.menu.UChefMenuRs
 import com.midasit.mcafe.infra.component.rs.uchef.menuinfo.UChefMenuInfoRs
 import com.midasit.mcafe.infra.component.rs.uchef.projectSeq.UChefProjectSeqRs
+import com.midasit.mcafe.infra.component.rs.uchef.securityid.UChefSecurityIdRs
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -18,6 +20,10 @@ class UChefComponent(private val webClient: WebClient,
                      private val uChefDomain: String,
                      @Value("\${u-chef.path.project-seq}")
                      private val uChefProjectSeqPath: String,
+                     @Value("\${u-chef.path.security-id}")
+                     private val uChefGetSecurityId: String,
+                     @Value("\${u-chef.path.login}")
+                     private val uChefLogIn: String,
                      @Value("\${u-chef.path.menu}")
                      private val uChefMenuPath: String,
                      @Value("\${u-chef.path.menu-info}")
@@ -37,6 +43,34 @@ class UChefComponent(private val webClient: WebClient,
         val uChefProjectSeqRs = objectMapper.readValue(res, UChefProjectSeqRs::class.java)
 
         return uChefProjectSeqRs.searchResult.memberData.defaultProjectSeq
+    }
+
+    fun login(phone: String, securityId: String, password: String): Boolean {
+        if (getSecurityId(phone) != securityId) {
+            return false
+        }
+        val res = createUChefClient()
+                .get()
+                .uri(uChefLogIn, shopMemberSeq, phone, password, getProjectSeq())
+                .retrieve()
+                .bodyToMono(String::class.java)
+                .block()
+        val uChefLogInRs= objectMapper.readValue(res, UChefLoginRs::class.java)
+
+        return uChefLogInRs.resultCode == "0"
+    }
+
+    private fun getSecurityId(phone: String): String {
+        val res = createUChefClient()
+                .get()
+                .uri(uChefGetSecurityId, shopMemberSeq, phone, getProjectSeq())
+                .retrieve()
+                .bodyToMono(String::class.java)
+                .block()
+
+        val uChefSecurityIdRs = objectMapper.readValue(res, UChefSecurityIdRs::class.java)
+
+        return uChefSecurityIdRs.searchResult?.securityId ?: throw Exception("존재하지 않습니다.")
     }
 
     fun getMenuList(): ArrayList<MenuCategoryDto> {
