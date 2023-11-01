@@ -18,6 +18,13 @@ spring:
       minimum-idle: 1
       max-lifetime: 120000
       maximum-pool-size: 4
+  data:
+    redis:
+      host: ${MCAFE_REDIS_HOST}
+      port: ${MCAFE_REDIS_PORT}
+      username: ${MCAFE_REDIS_USERNAME}
+      password: ${MCAFE_REDIS_PASSWORD}
+
   mvc:
     path match:
       matching-strategy: ant_path_matcher

@@ -7,13 +7,19 @@ import com.midasit.mcafe.infra.component.rs.uchef.menu.UChefMenuRs
 import com.midasit.mcafe.infra.component.rs.uchef.menuinfo.UChefMenuInfoRs
 import com.midasit.mcafe.infra.component.rs.uchef.projectSeq.UChefProjectSeqRs
 import com.midasit.mcafe.infra.component.rs.uchef.securityid.UChefSecurityIdRs
+import com.midasit.mcafe.infra.exception.CustomException
+import com.midasit.mcafe.infra.exception.ErrorMessage
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import java.time.Duration
+import java.util.*
 
 @Component
 class UChefComponent(private val webClient: WebClient,
                      private val objectMapper: ObjectMapper,
+                     private val redisTemplate: RedisTemplate<String, Any>,
                      @Value("\${u-chef.shop-member-seq}")
                      private val shopMemberSeq: Int,
                      @Value("\${u-chef.domain}")
@@ -45,9 +51,9 @@ class UChefComponent(private val webClient: WebClient,
         return uChefProjectSeqRs.searchResult.memberData.defaultProjectSeq
     }
 
-    fun login(phone: String, securityId: String, password: String): Boolean {
+    fun login(phone: String, securityId: String, password: String): String {
         if (getSecurityId(phone) != securityId) {
-            return false
+            throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
         }
         val res = createUChefClient()
                 .get()
@@ -55,9 +61,17 @@ class UChefComponent(private val webClient: WebClient,
                 .retrieve()
                 .bodyToMono(String::class.java)
                 .block()
-        val uChefLogInRs= objectMapper.readValue(res, UChefLoginRs::class.java)
+        val uChefLogInRs = objectMapper.readValue(res, UChefLoginRs::class.java)
 
-        return uChefLogInRs.resultCode == "0"
+        if (uChefLogInRs.resultCode == "0") {
+            val uuid = UUID.randomUUID().toString()
+            val valueOperations = redisTemplate.opsForValue()
+            valueOperations.set(uuid, phone, Duration.ofMinutes(30))
+
+            return uuid
+        } else {
+            throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
+        }
     }
 
     private fun getSecurityId(phone: String): String {
