@@ -33,7 +33,7 @@ class SecurityConfig(val jwtTokenProvider: JwtTokenProvider) {
                 it.requestMatchers(
                     "/api-docs/**", "/health", "/swagger-ui.html",
                     "/swagger-ui/**", "/v3/**", "/actuator/**",
-                    "/menu/**"
+                    "/menu/**", "/test/**"
                 )
                     .permitAll()
                     .requestMatchers("/member/signup", "/member/login")
