@@ -36,4 +36,8 @@ class MemberService(
             LoginDto(phone = member.phone, name = member.name, token = accessToken)
         } ?: throw Exception("로그인 정보가 없습니다.")
     }
+
+    fun findByPhone(phone: String): Member {
+        return memberRepository.findByPhone(phone) ?: throw Exception("회원 정보가 없습니다.")
+    }
 }
