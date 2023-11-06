@@ -12,9 +12,4 @@ class FavoriteMenu(
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "member_id", nullable = false, foreignKey = ForeignKey(name = "fk_favorite_menu_member_id"))
         val member: Member
-) :BaseEntity() {
-    @Id
-    @Column(name = "favorite_menu_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
-}
+) :BaseEntity()

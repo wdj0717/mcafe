@@ -14,9 +14,4 @@ class RecentOrder (
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "order_id", nullable = false, foreignKey = ForeignKey(name = "fk_recent_order_order_id"))
         val order: Order,
-): BaseEntity(){
-    @Id
-    @Column(name = "recent_order_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
-}
+): BaseEntity()

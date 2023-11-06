@@ -20,9 +20,9 @@ class RoomServiceTest : BehaviorSpec({
     given("방 정보가 주어졌을 때") {
         val request = RoomRequest.Create("test", "test", RoomStatus.PUBLIC)
         val phone = "010-1234-5678"
-        val member = Member(phone = phone, name = "name", password = "1q2w3e4r5t", role = Role.USER)
+        val member = Member(phone = phone, username = "username", password = "1q2w3e4r5t", name = "name", role = Role.USER)
         val room = Room("test", "test", member, RoomStatus.PUBLIC)
-        ReflectionTestUtils.setField(room, "id", 1L)
+        ReflectionTestUtils.setField(room, "sn", 1L)
         every { roomRepository.findByName(any()) } returns null
         every { memberService.findByPhone(any()) } returns member
         every { roomRepository.save(any()) } returns room

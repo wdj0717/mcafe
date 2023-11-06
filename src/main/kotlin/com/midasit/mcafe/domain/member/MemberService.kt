@@ -21,32 +21,39 @@ class MemberService(
 ) {
 
     @Transactional
-    fun signup(request: MemberRequest.Signup) : MemberDto {
-        val valueOperations = redisTemplate.opsForValue()
-        val phone = valueOperations.getAndDelete(request.certKey)
-        if (phone != request.phone) {
-            throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
-        }
+    fun signup(request: MemberRequest.Signup): MemberDto {
+        this.validateMember(request)
+
         val member = Member(
             phone = request.phone,
-            name = request.name,
+            username = request.username,
             password = request.password,
+            name = request.name,
             role = Role.USER
         )
         return MemberDto.of(memberRepository.save(member))
     }
 
-    fun login(request: MemberRequest.Login): LoginDto {
-        return memberRepository.findByPhone(request.phone)?.let { member ->
-            if(PasswordEncryptUtil.match(request.password, member.password).not()) {
-                throw Exception("비밀번호가 일치하지 않습니다.")
-            }
-            val accessToken = jwtTokenProvider.generateAccessToken(member.phone)
-            LoginDto(phone = member.phone, name = member.name, token = accessToken)
-        } ?: throw Exception("로그인 정보가 없습니다.")
+    private fun validateMember(request: MemberRequest.Signup) {
+        val valueOperations = redisTemplate.opsForValue()
+        val phone = valueOperations.getAndDelete(request.certKey)
+        if (phone != request.phone) {
+            throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
+        }
     }
 
-    fun findByPhone(phone: String): Member {
-        return memberRepository.findByPhone(phone) ?: throw Exception("회원 정보가 없습니다.")
+    fun login(request: MemberRequest.Login): LoginDto {
+        return memberRepository.findByUsername(request.username)?.let { member ->
+            if (PasswordEncryptUtil.match(request.password, member.password).not()) {
+                throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST)
+            }
+            require(member.sn != null) { CustomException(ErrorMessage.INVALID_LOGIN_REQUEST) }
+            val accessToken = jwtTokenProvider.generateAccessToken(member.sn)
+            LoginDto(phone = member.phone, name = member.name, token = accessToken)
+        } ?: throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST)
+    }
+
+    fun findBySn(memberSn: Long): Member {
+        return memberRepository.findBySn(memberSn) ?: throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST)
     }
 }

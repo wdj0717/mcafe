@@ -21,10 +21,6 @@ class Order(
         @JoinColumn(name = "room_id", nullable = false, foreignKey = ForeignKey(name = "fk_order_room_id"))
         val room: Room
 ) : BaseEntity(){
-    @Id
-    @Column(name = "order_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)

@@ -7,13 +7,8 @@ import jakarta.persistence.*
 @Table(name = "order_option")
 class OrderOption(
         @ManyToOne
-        @JoinColumn(name = "order_id", nullable = false, foreignKey = ForeignKey(name = "fk_order_option_order_id"))
+        @JoinColumn(name = "order_sn", nullable = false, foreignKey = ForeignKey(name = "fk_order_option_order_sn"))
         val order: Order,
         @Column(name = "option_value")
         val optionValue:String
-) : BaseEntity(){
-    @Id
-    @Column(name = "order_option_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
-}
+) : BaseEntity()

@@ -14,9 +14,4 @@ class Payment(
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "order_id", nullable = false, foreignKey = ForeignKey(name = "fk_payment_order_id"))
         val order: Order,
-) : BaseEntity(){
-    @Id
-    @Column(name = "payment_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
-}
+) : BaseEntity()

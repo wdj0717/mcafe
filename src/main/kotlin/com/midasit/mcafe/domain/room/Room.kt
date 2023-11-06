@@ -16,11 +16,6 @@ class Room(
         @Enumerated(EnumType.STRING)
         val status: RoomStatus
 ): BaseEntity(){
-    @Id
-    @Column(name = "room_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
-
     @Column(nullable = false)
     var name: String = name
         private set
