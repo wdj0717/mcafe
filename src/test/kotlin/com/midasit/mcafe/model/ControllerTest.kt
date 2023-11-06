@@ -8,56 +8,49 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.test.TestCase
 import io.kotest.extensions.spring.SpringExtension
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers
-import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
+import org.springframework.test.web.servlet.ResultActions
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import org.springframework.web.context.WebApplicationContext
-import org.springframework.web.filter.CharacterEncodingFilter
-import java.nio.charset.StandardCharsets
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @ActiveProfiles(value = ["h2"])
 abstract class ControllerTest: BehaviorSpec() {
 
     override fun extensions() = listOf(SpringExtension)
 
-    @Autowired
-    private lateinit var webApplicationContext: WebApplicationContext
+    private lateinit var mockMvc: MockMvc
 
-    protected lateinit var mockMvc: MockMvc
+    abstract fun getController(): Any
 
     override suspend fun beforeTest(testCase: TestCase) {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-            .apply<DefaultMockMvcBuilder>(SecurityMockMvcConfigurers.springSecurity())
-            .addFilters<DefaultMockMvcBuilder>(CharacterEncodingFilter(StandardCharsets.UTF_8.name(), true))
-            .alwaysDo<DefaultMockMvcBuilder>(MockMvcResultHandlers.print())
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(getController())
+            .apply<StandaloneMockMvcBuilder>(SecurityMockMvcConfigurers.springSecurity(MockSpringSecurityFilter()))
+            .setCustomArgumentResolvers(MockAuthenticationArgResolver())
             .build()
 
         super.beforeTest(testCase)
     }
 
-    protected fun MockMvc.getPerform(url: String, vararg vars: Any?) = this.get(url, *vars).andExpect { status { isOk() } }
-
-    protected fun MockMvc.postPerform(url: String, vararg vars: Any?, body: Any?) = this.post(url, *vars){
-            contentType = MediaType.APPLICATION_JSON
-            content = objectMapper.writeValueAsString(body)
-    }.andExpect { status { isOk() } }
+    protected fun perform(requestBuilder: MockHttpServletRequestBuilder): ResultActions {
+        return mockMvc.perform(
+            requestBuilder
+                .principal(UsernamePasswordAuthenticationToken("test", null, listOf()))
+                .accept(MediaType.APPLICATION_JSON)
+        )
+    }
 
     protected fun getJsonString(obj: Any): String = objectMapper.writeValueAsString(obj)
     protected fun <T> getObject(json: String, clazz: Class<T>): T = objectMapper.readValue(json, clazz)
 
     companion object {
+        @JvmStatic
         protected val objectMapper = Jackson2ObjectMapperBuilder.json()
             .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .modules(
