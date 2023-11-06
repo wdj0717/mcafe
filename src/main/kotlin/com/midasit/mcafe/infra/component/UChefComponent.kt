@@ -84,7 +84,7 @@ class UChefComponent(private val webClient: WebClient,
 
         val uChefSecurityIdRs = objectMapper.readValue(res, UChefSecurityIdRs::class.java)
 
-        return uChefSecurityIdRs.searchResult?.securityId ?: throw Exception("존재하지 않습니다.")
+        return uChefSecurityIdRs.searchResult?.securityId ?: throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
     }
 
     fun getMenuList(): ArrayList<MenuCategoryDto> {

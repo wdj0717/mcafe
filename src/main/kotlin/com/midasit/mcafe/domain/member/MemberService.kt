@@ -3,6 +3,7 @@ package com.midasit.mcafe.domain.member
 import com.midasit.mcafe.domain.member.dto.LoginDto
 import com.midasit.mcafe.domain.member.dto.MemberDto
 import com.midasit.mcafe.domain.member.dto.MemberRequest
+import com.midasit.mcafe.infra.component.UChefComponent
 import com.midasit.mcafe.infra.config.jwt.JwtTokenProvider
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
@@ -15,17 +16,26 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional(readOnly = true)
 class MemberService(
+    private val uChefComponent: UChefComponent,
     private val memberRepository: MemberRepository,
     private val jwtTokenProvider: JwtTokenProvider,
     private val redisTemplate: RedisTemplate<String, Any>
 ) {
 
+    fun getUChefAuth(request: MemberRequest.UChefAuth): String {
+        return uChefComponent.login(request.phone, request.securityId, request.password)
+    }
+
+    fun existsMemberByUsername(username: String): Boolean {
+        return memberRepository.existsByUsername(username)
+    }
+
     @Transactional
     fun signup(request: MemberRequest.Signup): MemberDto {
-        this.validateMember(request)
+        val phone = validateMember(request)
 
         val member = Member(
-            phone = request.phone,
+            phone = phone,
             username = request.username,
             password = request.password,
             name = request.name,
@@ -34,12 +44,19 @@ class MemberService(
         return MemberDto.of(memberRepository.save(member))
     }
 
-    private fun validateMember(request: MemberRequest.Signup) {
+    private fun validateMember(request: MemberRequest.Signup): String {
+        // u chef 인증 검사
         val valueOperations = redisTemplate.opsForValue()
         val phone = valueOperations.getAndDelete(request.certKey)
-        if (phone != request.phone) {
-            throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
-        }
+        require(phone != null) { throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH) }
+
+        // 비밀번호 체크 검사
+        require(request.password == request.passwordCheck) { throw CustomException(ErrorMessage.INVALID_PASSWORD_CHECK) }
+
+        // 아이디 중복체크 검사
+        require(!memberRepository.existsByUsername(request.username)) { throw CustomException(ErrorMessage.DUPLICATE_ID) }
+
+        return phone.toString()
     }
 
     fun login(request: MemberRequest.Login): LoginDto {
@@ -47,7 +64,7 @@ class MemberService(
             if (PasswordEncryptUtil.match(request.password, member.password).not()) {
                 throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST)
             }
-            require(member.sn != null) { CustomException(ErrorMessage.INVALID_LOGIN_REQUEST) }
+            require(member.sn != null) { throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST) }
             val accessToken = jwtTokenProvider.generateAccessToken(member.sn)
             LoginDto(phone = member.phone, name = member.name, token = accessToken)
         } ?: throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST)

@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 class CustomExceptionHandler {
 
     @ExceptionHandler(CustomException::class)
-    fun handle(e: CustomException): ResponseEntity<String> {
+    fun handle(e: CustomException): ResponseEntity<ErrorResponse> {
         val errorMessage = e.errorMessage
-        return ResponseEntity(errorMessage.message, errorMessage.httpStatus)
+        return ResponseEntity(ErrorResponse(errorMessage.message), errorMessage.httpStatus)
     }
 }

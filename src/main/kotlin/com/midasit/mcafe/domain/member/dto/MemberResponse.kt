@@ -4,6 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 class MemberResponse {
 
+    @Schema(description = "cert key", name = "MemberResponseCertKey")
+    class CertKey(val certKey: String)
+
+    @Schema(description = "username 중복 검사 반환 객체", name = "MemberResponseUsernameCheck")
+    class UsernameCheck(val isPossible: Boolean)
+
     @Schema(description = "유저 정보", name = "MemberResponseResult")
     class Result(val name: String, val phone: String) {
         companion object {
