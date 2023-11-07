@@ -32,11 +32,10 @@ class SecurityConfig(val jwtTokenProvider: JwtTokenProvider) {
             .authorizeHttpRequests {
                 it.requestMatchers(
                     "/api-docs/**", "/health", "/swagger-ui.html",
-                    "/swagger-ui/**", "/v3/**", "/actuator/**",
-                    "/menu/**", "/test/**"
+                    "/swagger-ui/**", "/v3/**", "/actuator/**"
                 )
                     .permitAll()
-                    .requestMatchers("/member/**")
+                    .requestMatchers("/test/**", "/menu/**", "/member/**", "/room/**")
                     .permitAll()
                     .anyRequest().authenticated()
             }

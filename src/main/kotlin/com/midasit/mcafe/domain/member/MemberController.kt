@@ -20,7 +20,7 @@ class MemberController(private val memberService: MemberService) {
         return MemberResponse.CertKey(memberService.getUChefAuth(request))
     }
 
-    @Operation(summary = "id 중복검사")
+    @Operation(summary = "username 중복검사")
     @GetMapping("/idcheck/{username}")
     fun usernameCheck(@PathVariable username: String): MemberResponse.UsernameCheck {
         return MemberResponse.UsernameCheck(!memberService.existsMemberByUsername(username))

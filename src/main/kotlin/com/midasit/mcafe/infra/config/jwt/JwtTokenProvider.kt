@@ -104,7 +104,7 @@ class JwtTokenProvider {
     }
 
     fun getMemberSn(claims: Claims): Long {
-        return claims.get(CLAIM_ID, Long::class.java)
+        return java.lang.Long.valueOf(claims.id)
     }
 
     fun getAuthentication(token: String): Authentication {
