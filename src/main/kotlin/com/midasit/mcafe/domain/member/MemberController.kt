@@ -3,6 +3,8 @@ package com.midasit.mcafe.domain.member
 import com.midasit.mcafe.domain.member.dto.MemberRequest
 import com.midasit.mcafe.domain.member.dto.MemberResponse
 import io.swagger.v3.oas.annotations.Operation
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -11,6 +13,18 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/member")
 class MemberController(private val memberService: MemberService) {
+
+    @Operation(summary = "uchef 인증")
+    @PostMapping("/uchef-auth")
+    fun uChefAuth(@RequestBody request: MemberRequest.UChefAuth): MemberResponse.CertKey {
+        return MemberResponse.CertKey(memberService.getUChefAuth(request))
+    }
+
+    @Operation(summary = "id 중복검사")
+    @GetMapping("/idcheck/{username}")
+    fun usernameCheck(@PathVariable username: String): MemberResponse.UsernameCheck {
+        return MemberResponse.UsernameCheck(!memberService.existsMemberByUsername(username))
+    }
 
     @Operation(summary = "회원가입")
     @PostMapping("/signup")

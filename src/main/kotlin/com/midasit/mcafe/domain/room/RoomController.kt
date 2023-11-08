@@ -17,11 +17,11 @@ class RoomController(val roomService: RoomService) {
     @PostMapping("/create")
     fun createRoom(@RequestBody request: RoomRequest.Create,
                    authentication: Authentication): RoomResponse.Result {
-        val phone = getPhone(authentication)
-        return RoomResponse.Result.of(roomService.createRoom(request, phone))
+        val memberSn = getMemberSn(authentication)
+        return RoomResponse.Result.of(roomService.createRoom(request, memberSn))
     }
 
-    private fun getPhone(authentication: Authentication): String {
-        return (authentication.principal as String)
+    private fun getMemberSn(authentication: Authentication): Long {
+        return (authentication.principal as Long)
     }
 }

@@ -35,12 +35,12 @@ class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.toByteArray())
     }
 
-    fun generateAccessToken(id: String, authorities: List<String> = listOf()): String {
+    fun generateAccessToken(id: Long, authorities: List<String> = listOf()): String {
         return generateToken(id, authorities, accessTokenExpiration.toLong())
     }
 
     private fun generateToken(
-        id: String,
+        id: Long,
         authorities: List<String>,
         tokenExpiration: Long
     ): String {
@@ -55,8 +55,8 @@ class JwtTokenProvider {
     }
 
 
-    fun generateRefreshToken(id: String, authorities: List<String>): String {
-        return generateToken( id,authorities, refreshTokenExpiration.toLong())
+    fun generateRefreshToken(id: Long, authorities: List<String>): String {
+        return generateToken(id, authorities, refreshTokenExpiration.toLong())
     }
 
     private fun createHeader(): Map<String, Any> {
@@ -67,7 +67,7 @@ class JwtTokenProvider {
     }
 
     private fun createClaims(
-        id: String,
+        id: Long,
         authorities: List<String>
     ): Map<String, Any> {
         val claims: MutableMap<String, Any> = HashMap()
@@ -102,15 +102,16 @@ class JwtTokenProvider {
             throw JwtException("Expired JWT token")
         }
     }
-    fun getPhoneNumber(claims: Claims): String {
-        return claims.get(CLAIM_ID, String::class.java)
+
+    fun getMemberSn(claims: Claims): Long {
+        return claims.get(CLAIM_ID, Long::class.java)
     }
 
     fun getAuthentication(token: String): Authentication {
         val claims = this.getClaims(token)
-        val phoneNumber: String = this.getPhoneNumber(claims)
+        val memberSn: Long = this.getMemberSn(claims)
 
-        return UsernamePasswordAuthenticationToken(phoneNumber, null, listOf())
+        return UsernamePasswordAuthenticationToken(memberSn, null, listOf())
     }
 
     companion object {

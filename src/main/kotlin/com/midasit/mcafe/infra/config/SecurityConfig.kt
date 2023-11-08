@@ -29,14 +29,14 @@ class SecurityConfig(val jwtTokenProvider: JwtTokenProvider) {
         return http
             .csrf { it.disable() }
             .cors { it.disable() }
-            .authorizeRequests {
+            .authorizeHttpRequests {
                 it.requestMatchers(
                     "/api-docs/**", "/health", "/swagger-ui.html",
                     "/swagger-ui/**", "/v3/**", "/actuator/**",
                     "/menu/**", "/test/**"
                 )
                     .permitAll()
-                    .requestMatchers("/member/signup", "/member/login")
+                    .requestMatchers("/member/**")
                     .permitAll()
                     .anyRequest().authenticated()
             }

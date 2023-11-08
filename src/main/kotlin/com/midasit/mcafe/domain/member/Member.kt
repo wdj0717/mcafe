@@ -6,26 +6,24 @@ import com.midasit.mcafe.model.Role
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "member", uniqueConstraints = [UniqueConstraint(columnNames = ["phone"])])
+@Table(name = "member", uniqueConstraints = [UniqueConstraint(columnNames = ["username", "phone"])])
 class Member(
        @Column(nullable = false)
        val phone :String,
-       name :String,
+       @Column(nullable = false)
+       val username: String,
        password :String,
+       name :String,
        @Column(name = "role")
        @Enumerated(EnumType.STRING)
        val role :Role
 ) : BaseEntity(){
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
-
-    @Column(nullable = false)
-    var name: String = name
-        private set
-
     @Column(nullable = false)
     @Convert(converter = PasswordConverter::class)
     var password: String = password
         private set
+    @Column(nullable = false)
+    var name: String = name
+        private set
+
 }
