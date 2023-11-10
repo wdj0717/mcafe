@@ -45,15 +45,15 @@ class MemberService(
     }
 
     private fun validateMember(request: MemberRequest.Signup): String {
-        // u chef 인증 검사
-        val valueOperations = redisTemplate.opsForValue()
-        val phone = valueOperations.getAndDelete(request.certKey)?: throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
-
         // 비밀번호 체크 검사
         require(request.password == request.passwordCheck) { throw CustomException(ErrorMessage.INVALID_PASSWORD_CHECK) }
 
         // 아이디 중복체크 검사
         require(!memberRepository.existsByUsername(request.username)) { throw CustomException(ErrorMessage.DUPLICATE_ID) }
+
+        // u chef 인증 검사
+        val valueOperations = redisTemplate.opsForValue()
+        val phone = valueOperations.getAndDelete(request.certKey)?: throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
 
         return phone.toString()
     }

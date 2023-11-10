@@ -10,6 +10,6 @@ class FavoriteMenu(
         @Column(nullable = false)
         val menuCode :String,
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "member_id", nullable = false, foreignKey = ForeignKey(name = "fk_favorite_menu_member_id"))
+        @JoinColumn(name = "member_sn", nullable = false, foreignKey = ForeignKey(name = "fk_favorite_menu_member_sn"))
         val member: Member
 ) :BaseEntity()

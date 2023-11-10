@@ -9,9 +9,9 @@ import jakarta.persistence.*
 @Table(name = "recent_order")
 class RecentOrder (
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "member_id", nullable = false, foreignKey = ForeignKey(name = "fk_recent_order_member_id"))
+        @JoinColumn(name = "member_sn", nullable = false, foreignKey = ForeignKey(name = "fk_recent_order_member_sn"))
         val member: Member,
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "order_id", nullable = false, foreignKey = ForeignKey(name = "fk_recent_order_order_id"))
+        @JoinColumn(name = "order_sn", nullable = false, foreignKey = ForeignKey(name = "fk_recent_order_order_sn"))
         val order: Order,
 ): BaseEntity()
