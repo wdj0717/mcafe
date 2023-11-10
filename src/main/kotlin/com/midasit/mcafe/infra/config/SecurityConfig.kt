@@ -35,8 +35,10 @@ class SecurityConfig(val jwtTokenProvider: JwtTokenProvider) {
                     "/swagger-ui/**", "/v3/**", "/actuator/**"
                 )
                     .permitAll()
-                    .requestMatchers("/test/**", "/menu/**", "/member/**", "/room/**")
+                    .requestMatchers("/test/**", "/menu/**", "/member/**")
                     .permitAll()
+                    .requestMatchers("/room/**")
+                    .authenticated()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(

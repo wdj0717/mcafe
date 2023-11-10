@@ -1,12 +1,6 @@
 package com.midasit.mcafe.infra.config.jwt
 
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.ExpiredJwtException
-import io.jsonwebtoken.JwtException
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.MalformedJwtException
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.UnsupportedJwtException
+import io.jsonwebtoken.*
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Value
@@ -104,7 +98,7 @@ class JwtTokenProvider {
     }
 
     fun getMemberSn(claims: Claims): Long {
-        return java.lang.Long.valueOf(claims.id)
+        return claims[CLAIM_ID].toString().toLong()
     }
 
     fun getAuthentication(token: String): Authentication {
