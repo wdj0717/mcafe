@@ -4,21 +4,24 @@ import com.midasit.mcafe.domain.room.dto.RoomRequest
 import com.midasit.mcafe.domain.room.dto.RoomResponse
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.security.core.Authentication
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/room")
 class RoomController(val roomService: RoomService) {
 
     @Operation(summary = "방 생성")
-    @PostMapping("/create")
+    @PostMapping
     fun createRoom(@RequestBody request: RoomRequest.Create,
-                   authentication: Authentication): RoomResponse.Result {
+                   authentication: Authentication): RoomResponse.Create {
         val memberSn = getMemberSn(authentication)
-        return RoomResponse.Result.of(roomService.createRoom(request, memberSn))
+        return RoomResponse.Create.of(roomService.createRoom(request, memberSn))
+    }
+
+    @Operation(summary = "방 목록 조회")
+    @GetMapping
+    fun getRoomList(authentication: Authentication): RoomResponse.GetRoomList {
+        return RoomResponse.GetRoomList(roomService.getRoomList())
     }
 
     private fun getMemberSn(authentication: Authentication): Long {

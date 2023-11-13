@@ -3,6 +3,7 @@ package com.midasit.mcafe.domain.room
 import com.midasit.mcafe.domain.member.MemberService
 import com.midasit.mcafe.domain.room.dto.RoomDto
 import com.midasit.mcafe.domain.room.dto.RoomRequest
+import com.midasit.mcafe.model.RoomStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -21,5 +22,10 @@ class RoomService(val roomRepository: RoomRepository,
 
     private fun duplicateRoomName(name: String): Boolean {
         return roomRepository.findByName(name) == null
+    }
+
+    fun getRoomList(): List<RoomDto> {
+        val roomList = roomRepository.findAllByStatusNot(RoomStatus.CLOSED)
+        return roomList.stream().map { RoomDto.of(it) }.toList()
     }
 }
