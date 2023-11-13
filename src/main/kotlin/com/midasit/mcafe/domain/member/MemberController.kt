@@ -21,7 +21,7 @@ class MemberController(private val memberService: MemberService) {
     }
 
     @Operation(summary = "username 중복검사")
-    @GetMapping("/idcheck/{username}")
+    @GetMapping("/id-check/{username}")
     fun usernameCheck(@PathVariable username: String): MemberResponse.UsernameCheck {
         return MemberResponse.UsernameCheck(!memberService.existsMemberByUsername(username))
     }
