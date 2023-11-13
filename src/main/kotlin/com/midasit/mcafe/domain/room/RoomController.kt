@@ -26,6 +26,22 @@ class RoomController(val roomService: RoomService) {
         return RoomResponse.GetRoomList(roomService.getRoomList())
     }
 
+    @Operation(summary = "입장한 방 목록 조회")
+    @GetMapping("/entered")
+    fun getEnteredRoomList(authentication: Authentication): RoomResponse.GetRoomList {
+        val memberSn = getMemberSn(authentication)
+        return RoomResponse.GetRoomList(roomService.getEnteredRoomList(memberSn))
+    }
+
+    @Operation(summary = "방 입장")
+    @PostMapping("/enter/{roomSn}")
+    fun enterRoom(@PathVariable roomSn: Long,
+                  @RequestBody request: RoomRequest.EnterRoom,
+                  authentication: Authentication): Boolean {
+        val memberSn = getMemberSn(authentication)
+        return roomService.enterRoom(memberSn, roomSn, request.password)
+    }
+
     private fun getMemberSn(authentication: Authentication): Long {
         return (authentication.principal as Long)
     }

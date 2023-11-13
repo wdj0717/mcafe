@@ -1,6 +1,7 @@
-package com.midasit.mcafe.domain.room
+package com.midasit.mcafe.domain.roommember
 
 import com.midasit.mcafe.domain.member.Member
+import com.midasit.mcafe.domain.room.Room
 import com.midasit.mcafe.model.BaseEntity
 import jakarta.persistence.*
 
