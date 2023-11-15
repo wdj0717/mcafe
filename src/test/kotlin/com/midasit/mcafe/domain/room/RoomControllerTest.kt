@@ -40,11 +40,10 @@ class RoomControllerTest : ControllerTest() {
                 }.andReturn()
                 then("방이 생성된다.") {
                     val response = res.response.contentAsString
-                    val result = objectMapper.readValue(response, RoomResponse.Result::class.java)
-                    result.id shouldBe roomDto.id
-                    result.name shouldBe roomDto.name
-                    result.password shouldBe roomDto.password
-                    result.status shouldBe roomDto.status
+                    val create = objectMapper.readValue(response, RoomResponse.Create::class.java)
+                    create.sn shouldBe roomDto.sn
+                    create.name shouldBe roomDto.name
+                    create.status shouldBe roomDto.status
                 }
             }
         }
