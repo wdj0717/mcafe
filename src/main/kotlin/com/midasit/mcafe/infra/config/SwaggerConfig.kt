@@ -13,14 +13,6 @@ import org.springframework.http.HttpHeaders
 @Configuration
 class SwaggerConfig {
 
-    companion object {
-        private const val TITLE = "Mcafe V2 API"
-        private const val DESCRIPTION = "Mcafe V2 API 명세서"
-        private const val VERSION = "2.0"
-        private const val BEARER = "Bearer"
-        private const val JWT = "JWT"
-    }
-
     @Bean
     fun getOpenApi(): OpenAPI {
         val server = Server().url("/")
@@ -46,5 +38,13 @@ class SwaggerConfig {
         .name(HttpHeaders.AUTHORIZATION)
 
     private fun securityRequirement() = SecurityRequirement().addList(HttpHeaders.AUTHORIZATION)
+
+    companion object {
+        private const val TITLE = "Mcafe V2 API"
+        private const val DESCRIPTION = "Mcafe V2 API 명세서"
+        private const val VERSION = "2.0"
+        private const val BEARER = "Bearer"
+        private const val JWT = "JWT"
+    }
 
 }
