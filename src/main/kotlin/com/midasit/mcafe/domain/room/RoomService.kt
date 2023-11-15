@@ -26,6 +26,6 @@ class RoomService(val roomRepository: RoomRepository,
 
     fun getRoomList(): List<RoomDto> {
         val roomList = roomRepository.findAllByStatusNot(RoomStatus.CLOSED)
-        return roomList.stream().map { RoomDto.of(it) }.toList()
+        return roomList.map { RoomDto.of(it) }
     }
 }
