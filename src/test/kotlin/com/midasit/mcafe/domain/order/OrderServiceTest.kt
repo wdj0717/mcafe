@@ -1,19 +1,37 @@
 package com.midasit.mcafe.domain.order
 
+import com.midasit.mcafe.domain.member.Member
+import com.midasit.mcafe.domain.member.MemberService
+import com.midasit.mcafe.domain.room.Room
+import com.midasit.mcafe.domain.room.RoomService
 import com.midasit.mcafe.infra.component.UChefComponent
+import com.midasit.mcafe.model.OrderStatus
+import com.midasit.mcafe.model.Role
+import com.midasit.mcafe.model.RoomStatus
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
 import io.mockk.mockk
+import org.springframework.test.util.ReflectionTestUtils
 
 class OrderServiceTest : BehaviorSpec({
     val uChefComponent = mockk<UChefComponent>(relaxed = true)
-    val orderService = OrderService(uChefComponent)
+    val orderRepository = mockk<OrderRepository>(relaxed = true)
+    val roomService = mockk<RoomService>(relaxed = true)
+    val memberService = mockk<MemberService>(relaxed = true)
+    val orderService = OrderService(uChefComponent, orderRepository, roomService, memberService)
 
     given("멤버 Sn과 방 Sn, 메뉴코드가 주어지면") {
         val memberSn = 1L
         val roomSn = 1L
         val menuCode = "test"
-
+        val member = Member("010-1234-1234", "username", "1q2w3e4r5t", "name", Role.USER)
+        ReflectionTestUtils.setField(member, "sn", memberSn)
+        val room = Room("test", "test", member, RoomStatus.PUBLIC)
+        ReflectionTestUtils.setField(room, "sn", roomSn)
+        every { memberService.findBySn(any()) } returns member
+        every { roomService.findRoomSn(any()) } returns room
+        every { orderRepository.save(any()) } returns Order(OrderStatus.PENDING, menuCode, member, room)
         When("주문 등록하면") {
             val result = orderService.createOrder(memberSn, roomSn, menuCode)
 
