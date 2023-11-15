@@ -9,8 +9,10 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional(readOnly = true)
-class RoomService(val roomRepository: RoomRepository,
-                  val memberService: MemberService) {
+class RoomService(
+    val roomRepository: RoomRepository,
+    val memberService: MemberService
+) {
 
     @Transactional
     fun createRoom(request: RoomRequest.Create, memberSn: Long): RoomDto {
@@ -20,12 +22,12 @@ class RoomService(val roomRepository: RoomRepository,
         return RoomDto.of(roomRepository.save(createRoom))
     }
 
-    private fun duplicateRoomName(name: String): Boolean {
-        return roomRepository.findByName(name) == null
-    }
-
     fun getRoomList(): List<RoomDto> {
         val roomList = roomRepository.findAllByStatusNot(RoomStatus.CLOSED)
         return roomList.map { RoomDto.of(it) }
+    }
+
+    private fun duplicateRoomName(name: String): Boolean {
+        return roomRepository.findByName(name) == null
     }
 }

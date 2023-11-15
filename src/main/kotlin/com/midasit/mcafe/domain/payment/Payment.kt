@@ -8,10 +8,10 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "payment")
 class Payment(
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "member_sn", nullable = false, foreignKey = ForeignKey(name = "fk_payment_member_sn"))
-        val member: Member,
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "order_sn", nullable = false, foreignKey = ForeignKey(name = "fk_payment_order_sn"))
-        val order: Order,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_sn", nullable = false, foreignKey = ForeignKey(name = "fk_payment_member_sn"))
+    val member: Member,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_sn", nullable = false, foreignKey = ForeignKey(name = "fk_payment_order_sn"))
+    val order: Order,
 ) : BaseEntity()

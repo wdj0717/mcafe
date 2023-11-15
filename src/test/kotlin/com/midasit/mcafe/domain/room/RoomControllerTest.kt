@@ -27,12 +27,11 @@ class RoomControllerTest : ControllerTest() {
     init {
         given("방 생성을 위한 정보를 받아온다.") {
             val request = RoomRequest.Create("test", "test", RoomStatus.PUBLIC)
-            val phone = "test"
             val roomDto = RoomDto(1, request.name, request.password, request.status)
             every { roomService.createRoom(any(), any()) } returns roomDto
             `when`("방 생성을 요청한다.") {
                 val res = perform(
-                    post("/room/create")
+                    post("/room")
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(APPLICATION_JSON)
                 ).andExpect {

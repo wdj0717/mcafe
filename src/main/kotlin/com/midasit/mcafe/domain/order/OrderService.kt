@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class OrderService(
-        private val uChefComponent: UChefComponent
+    private val uChefComponent: UChefComponent
 ) {
 
     fun getMenuList(): OrderResponse.GetMenuList {

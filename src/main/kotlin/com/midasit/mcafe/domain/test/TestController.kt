@@ -20,10 +20,12 @@ class TestController(private val uChefComponent: UChefComponent) {
 
     @GetMapping("/test/uchef/login")
     @Operation(summary = "u chef 로그인 테스트")
-    fun uChefLoginTest(phone: String,
-                       securityId: String,
-                       @Parameter(schema = Schema(format = "password"))
-                       password: String): String {
+    fun uChefLoginTest(
+        phone: String,
+        securityId: String,
+        @Parameter(schema = Schema(format = "password"))
+        password: String
+    ): String {
         return uChefComponent.login(phone, securityId, password)
     }
 }

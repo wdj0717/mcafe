@@ -41,7 +41,7 @@ abstract class ControllerTest: BehaviorSpec() {
     protected fun perform(requestBuilder: MockHttpServletRequestBuilder): ResultActions {
         return mockMvc.perform(
             requestBuilder
-                .principal(UsernamePasswordAuthenticationToken("test", null, listOf()))
+                .principal(UsernamePasswordAuthenticationToken(1L, null, listOf()))
                 .accept(MediaType.APPLICATION_JSON)
         )
     }

@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 class McafeV2Application
 
 fun main(args: Array<String>) {
-	runApplication<McafeV2Application>(*args)
+    runApplication<McafeV2Application>(*args)
 }

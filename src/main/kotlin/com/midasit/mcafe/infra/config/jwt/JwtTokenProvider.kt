@@ -33,41 +33,9 @@ class JwtTokenProvider {
         return generateToken(id, authorities, accessTokenExpiration.toLong())
     }
 
-    private fun generateToken(
-        id: Long,
-        authorities: List<String>,
-        tokenExpiration: Long
-    ): String {
-        val now = Instant.now()
-        return Jwts.builder()
-            .setHeader(createHeader())
-            .setClaims(createClaims(id, authorities))
-            .setIssuedAt(Date.from(now))
-            .setExpiration(Date.from(now.plus(tokenExpiration, ChronoUnit.MINUTES)))
-            .signWith(SignatureAlgorithm.HS256, secretKey) // 암호화 알고리즘, secret 값 세팅
-            .compact()
-    }
-
 
     fun generateRefreshToken(id: Long, authorities: List<String>): String {
         return generateToken(id, authorities, refreshTokenExpiration.toLong())
-    }
-
-    private fun createHeader(): Map<String, Any> {
-        val headers: MutableMap<String, Any> = HashMap()
-        headers["typ"] = HEADER_TYP
-        headers["alg"] = SignatureAlgorithm.HS256.value
-        return headers
-    }
-
-    private fun createClaims(
-        id: Long,
-        authorities: List<String>
-    ): Map<String, Any> {
-        val claims: MutableMap<String, Any> = HashMap()
-        claims[CLAIM_ID] = id
-        claims[CLAIM_AUTHORITIES] = authorities
-        return claims
     }
 
     fun resolveToken(request: HttpServletRequest): String? {
@@ -98,7 +66,7 @@ class JwtTokenProvider {
     }
 
     fun getMemberSn(claims: Claims): Long {
-        return claims[CLAIM_ID].toString().toLong()
+        return claims[CLAIM_ID]?.let { it as Long } ?: throw JwtException("Invalid JWT claims")
     }
 
     fun getAuthentication(token: String): Authentication {
@@ -106,6 +74,38 @@ class JwtTokenProvider {
         val memberSn: Long = this.getMemberSn(claims)
 
         return UsernamePasswordAuthenticationToken(memberSn, null, listOf())
+    }
+
+    private fun createHeader(): Map<String, Any> {
+        val headers: MutableMap<String, Any> = HashMap()
+        headers["typ"] = HEADER_TYP
+        headers["alg"] = SignatureAlgorithm.HS256.value
+        return headers
+    }
+
+    private fun createClaims(
+        id: Long,
+        authorities: List<String>
+    ): Map<String, Any> {
+        val claims: MutableMap<String, Any> = HashMap()
+        claims[CLAIM_ID] = id
+        claims[CLAIM_AUTHORITIES] = authorities
+        return claims
+    }
+
+    private fun generateToken(
+        id: Long,
+        authorities: List<String>,
+        tokenExpiration: Long
+    ): String {
+        val now = Instant.now()
+        return Jwts.builder()
+            .setHeader(createHeader())
+            .setClaims(createClaims(id, authorities))
+            .setIssuedAt(Date.from(now))
+            .setExpiration(Date.from(now.plus(tokenExpiration, ChronoUnit.MINUTES)))
+            .signWith(SignatureAlgorithm.HS256, secretKey) // 암호화 알고리즘, secret 값 세팅
+            .compact()
     }
 
     companion object {

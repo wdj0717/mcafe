@@ -27,7 +27,7 @@ class MemberControllerTest : ControllerTest() {
 
     init {
         given("회원가입을 위한 정보를 받아온다.") {
-            val request = MemberRequest.Signup(phone = "010-1234-5678", name = "name", password = "1q2w3e4r5t")
+            val request = MemberRequest.Signup("username", "1q2w3e4r5t", "1q2w3e4r5t", "name", "certKey")
             every { memberService.signup(any()) } returns MemberDto("name", "010-1234-5678", Role.USER)
             `when`("회원가입을 요청한다.") {
                 val res = perform(

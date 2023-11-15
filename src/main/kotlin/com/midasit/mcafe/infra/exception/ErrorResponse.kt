@@ -1,3 +1,3 @@
 package com.midasit.mcafe.infra.exception
 
-class ErrorResponse (val errorMessage: String)
+class ErrorResponse(val errorMessage: String)

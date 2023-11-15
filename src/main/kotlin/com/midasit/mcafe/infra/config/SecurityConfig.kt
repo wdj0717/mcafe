@@ -42,21 +42,10 @@ class SecurityConfig(val jwtTokenProvider: JwtTokenProvider) {
                     .anyRequest().authenticated()
             }
             .addFilterBefore(
-                JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter::class.java)
+                JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter::class.java
+            )
             .formLogin { it.disable() }
             .logout { it.disable() }
             .build()
     }
-
-    //TODO @Peter : 로그인 붙일때 수정
-//    @Bean
-//    fun userDetailsService(): UserDetailsService {
-//        val userDetails = User.withDefaultPasswordEncoder()
-//                .username("user")
-//                .password("password")
-//                .roles("USER")
-//                .build()
-//        return InMemoryUserDetailsManager(userDetails)
-//    }
-
 }

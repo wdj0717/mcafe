@@ -23,26 +23,36 @@ import java.util.concurrent.TimeUnit
  * WebClient 설정
  */
 @Configuration
-class WebClientConfig(private val objectMapper: ObjectMapper,
-                      @Value("\${web-client.connect-timeout}") private val connectTimeout: Int,
-                      @Value("\${web-client.read-timeout}") private val readTimeout: Int,
-                      @Value("\${web-client.write-timeout}") private val writeTimeout: Int) {
+class WebClientConfig(
+    private val objectMapper: ObjectMapper,
+    @Value("\${web-client.connect-timeout}") private val connectTimeout: Int,
+    @Value("\${web-client.read-timeout}") private val readTimeout: Int,
+    @Value("\${web-client.write-timeout}") private val writeTimeout: Int
+) {
     @Bean
     fun webClient(): WebClient {
         val clientMapper = objectMapper.copy()
         clientMapper.propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
 
-        val httpClient = HttpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout) // Connection Timeout
+        val httpClient =
+            HttpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout) // Connection Timeout
                 .doOnConnected { connection: Connection ->
-                    connection.addHandlerLast(ReadTimeoutHandler(readTimeout.toLong(), TimeUnit.MILLISECONDS)) // Read Timeout
-                            .addHandlerLast(WriteTimeoutHandler(writeTimeout.toLong(), TimeUnit.MILLISECONDS))
+                    connection.addHandlerLast(
+                        ReadTimeoutHandler(
+                            readTimeout.toLong(),
+                            TimeUnit.MILLISECONDS
+                        )
+                    ) // Read Timeout
+                        .addHandlerLast(WriteTimeoutHandler(writeTimeout.toLong(), TimeUnit.MILLISECONDS))
                 } // Write Timeout
 
 
         val connector: ClientHttpConnector = ReactorClientHttpConnector(httpClient)
 
-        val exchangeStrategies = ExchangeStrategies.builder().codecs { it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(clientMapper)) }.build()
+        val exchangeStrategies = ExchangeStrategies.builder()
+            .codecs { it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(clientMapper)) }.build()
 
-        return WebClient.builder().defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).exchangeStrategies(exchangeStrategies).clientConnector(connector).build()
+        return WebClient.builder().defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .exchangeStrategies(exchangeStrategies).clientConnector(connector).build()
     }
 }

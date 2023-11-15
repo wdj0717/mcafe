@@ -15,14 +15,14 @@ class MapperConfig {
     @Bean
     fun objectMapper(): ObjectMapper {
         return Jackson2ObjectMapperBuilder.json()
-                .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .modules(
-                        listOf(
-                                JavaTimeModule(), KotlinModule.Builder()
-                                .configure(KotlinFeature.NullIsSameAsDefault, true)
-                                .build()
-                        )
-                ).build()
+            .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .modules(
+                listOf(
+                    JavaTimeModule(), KotlinModule.Builder()
+                        .configure(KotlinFeature.NullIsSameAsDefault, true)
+                        .build()
+                )
+            ).build()
     }
 
 }

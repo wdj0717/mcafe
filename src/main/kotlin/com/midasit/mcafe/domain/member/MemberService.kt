@@ -44,20 +44,6 @@ class MemberService(
         return MemberDto.of(memberRepository.save(member))
     }
 
-    private fun validateMember(request: MemberRequest.Signup): String {
-        // 비밀번호 체크 검사
-        require(request.password == request.passwordCheck) { throw CustomException(ErrorMessage.INVALID_PASSWORD_CHECK) }
-
-        // 아이디 중복체크 검사
-        require(!memberRepository.existsByUsername(request.username)) { throw CustomException(ErrorMessage.DUPLICATE_ID) }
-
-        // u chef 인증 검사
-        val valueOperations = redisTemplate.opsForValue()
-        val phone = valueOperations.getAndDelete(request.certKey)?: throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
-
-        return phone.toString()
-    }
-
     fun login(request: MemberRequest.Login): LoginDto {
         return memberRepository.findByUsername(request.username)?.let { member ->
             if (PasswordEncryptUtil.match(request.password, member.password).not()) {
@@ -71,5 +57,20 @@ class MemberService(
 
     fun findBySn(memberSn: Long): Member {
         return memberRepository.findBySn(memberSn) ?: throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST)
+    }
+
+    private fun validateMember(request: MemberRequest.Signup): String {
+        // 비밀번호 체크 검사
+        require(request.password == request.passwordCheck) { throw CustomException(ErrorMessage.INVALID_PASSWORD_CHECK) }
+
+        // 아이디 중복체크 검사
+        require(!memberRepository.existsByUsername(request.username)) { throw CustomException(ErrorMessage.DUPLICATE_ID) }
+
+        // u chef 인증 검사
+        val valueOperations = redisTemplate.opsForValue()
+        val phone =
+            valueOperations.getAndDelete(request.certKey) ?: throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
+
+        return phone.toString()
     }
 }

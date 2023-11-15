@@ -15,7 +15,8 @@ class RoomResponse {
     }
 
     @Schema(name = "RoomResponseGetRoomList", description = "방 목록 조회")
-    class GetRoomList(@Schema(description = "방 목록", required = true)
-                      val roomList: List<RoomDto>) {
-    }
+    class GetRoomList(
+        @Schema(description = "방 목록", required = true)
+        val roomList: List<RoomDto>
+    )
 }

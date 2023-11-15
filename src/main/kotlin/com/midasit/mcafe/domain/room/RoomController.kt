@@ -12,8 +12,10 @@ class RoomController(val roomService: RoomService) {
 
     @Operation(summary = "방 생성")
     @PostMapping
-    fun createRoom(@RequestBody request: RoomRequest.Create,
-                   authentication: Authentication): RoomResponse.Create {
+    fun createRoom(
+        @RequestBody request: RoomRequest.Create,
+        authentication: Authentication
+    ): RoomResponse.Create {
         val memberSn = getMemberSn(authentication)
         return RoomResponse.Create.of(roomService.createRoom(request, memberSn))
     }

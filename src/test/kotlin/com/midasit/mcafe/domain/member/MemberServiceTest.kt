@@ -1,6 +1,7 @@
 package com.midasit.mcafe.domain.member
 
 import com.midasit.mcafe.domain.member.dto.MemberRequest
+import com.midasit.mcafe.infra.component.UChefComponent
 import com.midasit.mcafe.infra.config.jwt.JwtTokenProvider
 import com.midasit.mcafe.model.PasswordEncryptUtil
 import com.midasit.mcafe.model.Role
@@ -9,19 +10,26 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.test.util.ReflectionTestUtils
 
 class MemberServiceTest : BehaviorSpec({
     val memberRepository = mockk<MemberRepository>(relaxed = true)
     val jwtTokenProvider = mockk<JwtTokenProvider>(relaxed = true)
-    val memberService = MemberService(memberRepository, jwtTokenProvider)
+    val uChefComponent = mockk<UChefComponent>(relaxed = true)
+    val redisTemplate = mockk<RedisTemplate<String, Any>>(relaxed = true)
+    val memberService = MemberService(uChefComponent, memberRepository, jwtTokenProvider, redisTemplate)
+
     given("회원가입을 위한 정보를 받아온다.") {
-        val request = MemberRequest.Signup(phone = "010-1234-5678", name = "name", password = "1q2w3e4r5t")
+        val request = MemberRequest.Signup("username", "1q2w3e4r5t", "1q2w3e4r5t", "name", "certKey")
         val member = Member(
-            phone = request.phone,
+            phone = "010-1234-5678",
+            username = request.username,
             name = request.name,
             password = request.password,
             role = Role.USER
         )
+        ReflectionTestUtils.setField(member, "sn", 1L)
         every { memberRepository.save(any()) } returns member
         `when`("회원가입을 요청한다.") {
             val result = memberService.signup(request)
@@ -33,15 +41,17 @@ class MemberServiceTest : BehaviorSpec({
     }
 
     given("로그인 정보를 받아온다.") {
-        var request = MemberRequest.Login("010-1234-5678", "1q2w3e4r5t")
+        var request = MemberRequest.Login("username", "1q2w3e4r5t")
         val member = Member(
-            phone = request.phone,
+            phone = "010-1234-1234",
+            username = request.username,
             name = "name",
             password = PasswordEncryptUtil.encrypt(request.password),
             role = Role.USER
         )
+        ReflectionTestUtils.setField(member, "sn", 1L)
         `when`("로그인 정보가 있을때") {
-            every { memberRepository.findByPhone(any()) } returns member
+            every { memberRepository.findByUsername(any()) } returns member
             every { jwtTokenProvider.generateAccessToken(any()) } returns "token"
             val result = memberService.login(request)
             then("로그인이 완료된다.") {
@@ -52,23 +62,23 @@ class MemberServiceTest : BehaviorSpec({
         }
 
         `when`("로그인 정보가 없을때") {
-            every { memberRepository.findByPhone(any()) } returns null
+            every { memberRepository.findByUsername(any()) } returns null
             val exception = shouldThrow<Exception> {
                 memberService.login(request)
             }
             then("로그인이 실패한다.") {
-                exception.message shouldBe "로그인 정보가 없습니다."
+                exception.message shouldBe "아이디가 존재하지 않거나 비밀번호가 틀렸습니다."
             }
         }
 
-        request = MemberRequest.Login("010-1234-5678", "1q2w3e4r")
+        request = MemberRequest.Login("username", "1q2w3e4r")
         `when`("비밀번호가 틀렸을때") {
-            every { memberRepository.findByPhone(any()) } returns member
+            every { memberRepository.findByUsername(any()) } returns member
             val exception = shouldThrow<Exception> {
                 memberService.login(request)
             }
             then("로그인이 실패한다.") {
-                exception.message shouldBe "비밀번호가 일치하지 않습니다."
+                exception.message shouldBe "아이디가 존재하지 않거나 비밀번호가 틀렸습니다."
             }
         }
     }
