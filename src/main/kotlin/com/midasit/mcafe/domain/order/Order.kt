@@ -9,8 +9,6 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "`order`")
 class Order(
-    @Column(nullable = false)
-    val orderKey: String,
     status: OrderStatus,
     @Column(nullable = false)
     val menuCode: String,
@@ -25,5 +23,8 @@ class Order(
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     var status: OrderStatus = status
+        private set
+    @Column(name = "order_key")
+    var orderKey: String? = null
         private set
 }
