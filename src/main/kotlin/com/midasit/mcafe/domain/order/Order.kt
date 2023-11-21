@@ -27,4 +27,12 @@ class Order(
     @Column(name = "order_key")
     var orderKey: String? = null
         private set
+
+    @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val orderOptions: MutableList<OrderOption> = mutableListOf()
+
+    fun addOption(optionValue: Long) {
+        val orderOption = OrderOption(this, optionValue.toString())
+        orderOptions.add(orderOption)
+    }
 }

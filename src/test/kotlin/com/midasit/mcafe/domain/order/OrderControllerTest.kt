@@ -1,0 +1,46 @@
+package com.midasit.mcafe.domain.order
+
+import com.midasit.mcafe.domain.order.dto.OrderDto
+import com.midasit.mcafe.domain.order.dto.OrderRequest
+import com.midasit.mcafe.domain.order.dto.OrderResponse
+import com.midasit.mcafe.model.ControllerTest
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import org.mockito.InjectMocks
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+
+class OrderControllerTest: ControllerTest() {
+
+    private val orderService: OrderService = mockk()
+
+    @InjectMocks
+    private val orderController =  OrderController(orderService)
+
+    override fun getController(): Any {
+        return orderController
+    }
+
+    init {
+        given("방번호와 reqeust가 주어지면") {
+            val request = OrderRequest.Create("menuCode", listOf(1L, 2L))
+            val roomSn = 1L
+            val orderDto = OrderDto(1L, roomSn, request.menuCode, request.optionList.map { it.toString() })
+            every { orderService.createOrder(any(), any(), any()) } returns orderDto
+            When("주문 생성 API를 호출하면") {
+                val result = perform(post("/order/$roomSn")
+                    .content(objectMapper.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                ).andExpect {
+                    status().isOk
+                }.andReturn()
+                then("주문 생성 결과가 반환된다.") {
+                    val res = getObject(result.response.contentAsString, OrderResponse.Create::class.java)
+                    res.orderDto shouldBe orderDto
+                }
+            }
+        }
+    }
+}
