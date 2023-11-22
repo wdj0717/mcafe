@@ -17,4 +17,5 @@ enum class ErrorMessage(
     ALREADY_ENTERED_ROOM("이미 입장한 방입니다.", HttpStatus.CONFLICT),
     INVALID_ROOM_INFO("잘못된 방 정보입니다.", HttpStatus.BAD_REQUEST),
     INVALID_ROOM_PASSWORD("방 비밀번호가 틀렸습니다.", HttpStatus.UNAUTHORIZED),
+    HOST_CANT_EXIT("방장은 방을 나갈 수 없습니다.", HttpStatus.BAD_REQUEST),
 }

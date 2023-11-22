@@ -25,7 +25,7 @@ class RoomServiceTest : BehaviorSpec({
             phone = "010-1234-1234",
             username = "username",
             password = "1q2w3e4r5t",
-            name = "name",
+            nickname = "name",
             role = Role.USER
         )
         val room = Room("test", "test", member, RoomStatus.PUBLIC)
