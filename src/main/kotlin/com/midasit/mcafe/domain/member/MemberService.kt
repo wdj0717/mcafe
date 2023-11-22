@@ -38,7 +38,7 @@ class MemberService(
             phone = phone,
             username = request.username,
             password = request.password,
-            name = request.name,
+            nickname = request.nickname,
             role = Role.USER
         )
         return MemberDto.of(memberRepository.save(member))
@@ -51,7 +51,7 @@ class MemberService(
             }
             require(member.sn != null) { throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST) }
             val accessToken = jwtTokenProvider.generateAccessToken(member.sn)
-            LoginDto(phone = member.phone, name = member.name, token = accessToken)
+            LoginDto(phone = member.phone, name = member.nickname, token = accessToken)
         } ?: throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST)
     }
 
