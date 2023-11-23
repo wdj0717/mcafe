@@ -9,7 +9,7 @@ import jakarta.persistence.*
 @Table(name = "room")
 class Room(
     name: String,
-    password: String,
+    password: String?,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "host_sn", nullable = false, foreignKey = ForeignKey(name = "fk_room_host_sn"))
     val host: Member,
@@ -20,7 +20,7 @@ class Room(
     var name: String = name
         private set
 
-    @Column(nullable = false)
-    var password: String = password
+    @Column(nullable = true)
+    var password: String? = password
         private set
 }

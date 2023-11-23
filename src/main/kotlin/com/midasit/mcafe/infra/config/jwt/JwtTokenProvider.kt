@@ -66,7 +66,8 @@ class JwtTokenProvider {
     }
 
     fun getMemberSn(claims: Claims): Long {
-        return claims[CLAIM_ID]?.let { it as Long } ?: throw JwtException("Invalid JWT claims")
+        val memberSn = claims[CLAIM_ID]?.toString() ?: throw JwtException("Invalid JWT claims")
+        return memberSn.toLong()
     }
 
     fun getAuthentication(token: String): Authentication {
