@@ -28,15 +28,14 @@ class OrderController(
         return orderService.getMenuInfo(menuCode)
     }
 
-    @PostMapping("/order/{roomSn}")
+    @PostMapping("/order")
     @Operation(summary = "주문 생성", description = "주문을 생성합니다.")
     fun createOrder(
-        @PathVariable roomSn: Long,
         @RequestBody request: OrderRequest.Create,
         authentication: Authentication
     ): OrderResponse.Create {
         val memberSn = getMemberSn(authentication)
-        return OrderResponse.Create(orderService.createOrder(memberSn, roomSn, request))
+        return OrderResponse.Create(orderService.createOrder(memberSn, request))
     }
 
     private fun getMemberSn(authentication: Authentication): Long {

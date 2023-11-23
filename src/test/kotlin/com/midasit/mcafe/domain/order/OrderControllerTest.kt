@@ -25,12 +25,12 @@ class OrderControllerTest: ControllerTest() {
 
     init {
         given("방번호와 reqeust가 주어지면") {
-            val request = OrderRequest.Create("menuCode", listOf(1L, 2L))
             val roomSn = 1L
+            val request = OrderRequest.Create("menuCode", roomSn, listOf(1L, 2L))
             val orderDto = OrderDto(1L, roomSn, request.menuCode, request.optionList.map { it.toString() })
-            every { orderService.createOrder(any(), any(), any()) } returns orderDto
+            every { orderService.createOrder(any(), any()) } returns orderDto
             When("주문 생성 API를 호출하면") {
-                val result = perform(post("/order/$roomSn")
+                val result = perform(post("/order")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                 ).andExpect {

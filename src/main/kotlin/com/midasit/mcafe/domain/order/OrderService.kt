@@ -25,10 +25,10 @@ class OrderService(
         return OrderResponse.GetMenuInfo(uChefComponent.getMenuInfo(menuCode))
     }
 
-    fun createOrder(memberSn: Long, roomSn: Long, request: OrderRequest.Create): OrderDto {
+    fun createOrder(memberSn: Long, request: OrderRequest.Create): OrderDto {
 
         val member = memberService.findBySn(memberSn)
-        val room = roomService.findRoomSn(roomSn)
+        val room = roomService.findRoomSn(request.roomSn)
         val order = Order(OrderStatus.PENDING, request.menuCode, member, room)
         request.optionList.forEach {
             order.addOption(it)

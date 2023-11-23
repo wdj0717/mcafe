@@ -26,7 +26,7 @@ class OrderServiceTest : BehaviorSpec({
         val memberSn = 1L
         val roomSn = 1L
         val menuCode = "test"
-        val request = OrderRequest.Create(menuCode, listOf(1L, 2L, 3L))
+        val request = OrderRequest.Create(menuCode, roomSn, listOf(1L, 2L, 3L))
         val member = Member("010-1234-1234", "username", "1q2w3e4r5t", "name", Role.USER)
         ReflectionTestUtils.setField(member, "sn", memberSn)
         val room = Room("test", "test", member, RoomStatus.PUBLIC)
@@ -39,7 +39,7 @@ class OrderServiceTest : BehaviorSpec({
         every { roomService.findRoomSn(any()) } returns room
         every { orderRepository.save(any()) } returns order
         When("주문 등록하면") {
-            val result = orderService.createOrder(memberSn, roomSn, request)
+            val result = orderService.createOrder(memberSn, request)
 
             then("주문 등록 결과가 반환된다.") {
                 result.memberSn shouldBe memberSn

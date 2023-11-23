@@ -8,6 +8,8 @@ class OrderRequest {
     class Create(
         @Schema(description = "메뉴 코드")
         val menuCode: String,
+        @Schema(description = "방 sn")
+        val roomSn: Long,
         @Schema(description = "옵션 목록")
         val optionList: List<Long>
     )
