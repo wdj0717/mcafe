@@ -42,7 +42,12 @@ class RoomService(
     fun getRoomInfo(memberSn: Long, roomSn: Long): RoomResponse.GetRoomInfo {
         val member = memberService.findBySn(memberSn)
         val room = this.findBySn(roomSn)
-        require(roomMemberRepository.existsByRoomAndMember(room, member)) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
+        require(
+            roomMemberRepository.existsByRoomAndMember(
+                room,
+                member
+            )
+        ) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
 
         val roomMember = roomMemberRepository.findByRoom(room)
         val memberList = roomMember.stream().map { RoomMemberDto.of(it.member) }.toList()
@@ -64,7 +69,7 @@ class RoomService(
         val member = memberService.findBySn(memberSn)
         val room = this.findBySn(roomSn)
 
-        if (room.status == RoomStatus.PRIVATE && room.password != password) {
+        if (room.status == RoomStatus.PRIVATE) {
             require(room.password == password) { throw CustomException(ErrorMessage.INVALID_ROOM_PASSWORD) }
         }
         require(room.status != RoomStatus.CLOSED) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
@@ -78,12 +83,18 @@ class RoomService(
     }
 
     @Transactional
-    fun exitRoom(memberSn: Long, roomSn: Long): Long {
+    fun exitRoom(memberSn: Long, roomSn: Long): Boolean {
         val member = memberService.findBySn(memberSn)
         val room = this.findBySn(roomSn)
         require(room.host != member) { throw CustomException(ErrorMessage.HOST_CANT_EXIT) }
+        require(
+            roomMemberRepository.deleteByRoomAndMember(
+                room,
+                member
+            ) > 0
+        ) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
 
-        return roomMemberRepository.deleteByRoomAndMember(room, member)
+        return true
     }
 
     @Transactional
