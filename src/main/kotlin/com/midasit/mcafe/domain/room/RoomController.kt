@@ -44,8 +44,9 @@ class RoomController(val roomService: RoomService) {
     fun getRoomInfo(
         @PathVariable roomSn: Long,
         authentication: Authentication
-    ): RoomResponse.GetRoomList {
-        return RoomResponse.GetRoomList(roomService.getRoomList())
+    ): RoomResponse.GetRoomInfo {
+        val memberSn = getMemberSn(authentication)
+        return roomService.getRoomInfo(memberSn, roomSn)
     }
 
     @Operation(summary = "입장한 방 목록 조회")

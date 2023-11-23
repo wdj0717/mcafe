@@ -3,8 +3,10 @@ package com.midasit.mcafe.domain.room
 import com.midasit.mcafe.domain.member.MemberService
 import com.midasit.mcafe.domain.room.dto.RoomDto
 import com.midasit.mcafe.domain.room.dto.RoomRequest
+import com.midasit.mcafe.domain.room.dto.RoomResponse
 import com.midasit.mcafe.domain.roommember.RoomMember
 import com.midasit.mcafe.domain.roommember.RoomMemberRepository
+import com.midasit.mcafe.domain.roommember.dto.RoomMemberDto
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.RoomStatus
@@ -28,13 +30,24 @@ class RoomService(
         return RoomDto.of(createdRoom)
     }
 
+    private fun duplicateRoomName(name: String): Boolean {
+        return !roomRepository.existsByName(name)
+    }
+
     fun getRoomList(): List<RoomDto> {
         val roomList = roomRepository.findAllByStatusNot(RoomStatus.CLOSED)
         return roomList.map { RoomDto.of(it) }
     }
 
-    private fun duplicateRoomName(name: String): Boolean {
-        return !roomRepository.existsByName(name)
+    fun getRoomInfo(memberSn: Long, roomSn: Long): RoomResponse.GetRoomInfo {
+        val member = memberService.findBySn(memberSn)
+        val room = this.findBySn(roomSn)
+        require(roomMemberRepository.existsByRoomAndMember(room, member)) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
+
+        val roomMember = roomMemberRepository.findByRoom(room)
+        val memberList = roomMember.stream().map { RoomMemberDto.of(it.member) }.toList()
+
+        return RoomResponse.GetRoomInfo(RoomDto.of(room), memberList)
     }
 
     fun getEnteredRoomList(memberSn: Long): List<RoomDto> {
