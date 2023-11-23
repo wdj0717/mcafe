@@ -15,4 +15,10 @@ class OrderResponse {
         @Schema(description = "메뉴 정보", required = true)
         val menuInfo: MenuInfoDto
     )
+
+    @Schema(name = "OrderResponseCreate", description = "주문 생성 응답 객체")
+    class Create(
+        @Schema(description = "주문 정보", required = true)
+        val orderDto: OrderDto
+    )
 }

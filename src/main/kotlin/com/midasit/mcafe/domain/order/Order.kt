@@ -9,8 +9,6 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "`order`")
 class Order(
-    @Column(nullable = false)
-    val orderKey: String,
     status: OrderStatus,
     @Column(nullable = false)
     val menuCode: String,
@@ -26,4 +24,15 @@ class Order(
     @Enumerated(EnumType.STRING)
     var status: OrderStatus = status
         private set
+    @Column(name = "order_key")
+    var orderKey: String? = null
+        private set
+
+    @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val orderOptions: MutableList<OrderOption> = mutableListOf()
+
+    fun addOption(optionValue: Long) {
+        val orderOption = OrderOption(this, optionValue.toString())
+        orderOptions.add(orderOption)
+    }
 }

@@ -27,6 +27,11 @@ class RoomService(
         return roomList.map { RoomDto.of(it) }
     }
 
+    fun findRoomSn(roomSn: Long): Room {
+        return roomRepository.findById(roomSn)
+            .orElseThrow { IllegalArgumentException("존재하지 않는 방입니다.") }
+    }
+
     private fun duplicateRoomName(name: String): Boolean {
         return roomRepository.findByName(name) == null
     }
