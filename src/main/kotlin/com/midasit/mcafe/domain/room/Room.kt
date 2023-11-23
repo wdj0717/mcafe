@@ -20,7 +20,6 @@ class Room(
     var name: String = name
         private set
 
-    @Column(nullable = true)
     var password: String? = password
         private set
 }

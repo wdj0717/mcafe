@@ -63,9 +63,7 @@ class RoomController(val roomService: RoomService) {
         authentication: Authentication
     ): Boolean {
         val memberSn = getMemberSn(authentication)
-        require(roomService.exitRoom(memberSn, roomSn) > 0) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
-
-        return true
+        return roomService.exitRoom(memberSn, roomSn)
     }
 
     @Operation(summary = "방 삭제")
