@@ -6,6 +6,8 @@ enum class ErrorMessage(
     val message: String,
     val httpStatus: HttpStatus
 ) {
+    INTERNAL_SERVER_ERROR("서버 오류", HttpStatus.INTERNAL_SERVER_ERROR),
+
     // 회원가입, 로그인
     INVALID_UCHEF_AUTH("m cafe 인증 정보가 맞지 않습니다.", HttpStatus.UNAUTHORIZED),
     DUPLICATE_ID("중복된 아이디가 존재합니다.", HttpStatus.CONFLICT),
