@@ -11,7 +11,7 @@ class MemberRequest {
         val username: String,
         val password: String,
         val passwordCheck: String,
-        val name: String,
+        val nickname: String,
         val certKey: String
     )
 

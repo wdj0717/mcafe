@@ -1,5 +1,6 @@
 package com.midasit.mcafe.domain.room.dto
 
+import com.midasit.mcafe.domain.roommember.dto.RoomMemberDto
 import com.midasit.mcafe.model.RoomStatus
 import io.swagger.v3.oas.annotations.media.Schema
 
@@ -18,5 +19,13 @@ class RoomResponse {
     class GetRoomList(
         @Schema(description = "방 목록", required = true)
         val roomList: List<RoomDto>
+    )
+
+    @Schema(name = "RoomResponseGetRoomInfo", description = "방 정보 조회")
+    class GetRoomInfo(
+        @Schema(description = "방 이름", required = true)
+        val room: RoomDto,
+        @Schema(description = "참여자 정보", required = true)
+        val memberList: List<RoomMemberDto>
     )
 }

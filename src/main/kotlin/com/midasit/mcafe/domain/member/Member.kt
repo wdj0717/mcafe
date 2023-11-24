@@ -6,14 +6,14 @@ import com.midasit.mcafe.model.Role
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "member", uniqueConstraints = [UniqueConstraint(columnNames = ["username", "phone"])])
+@Table(name = "member")
 class Member(
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     val phone: String,
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     val username: String,
     password: String,
-    name: String,
+    nickname: String,
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     val role: Role
@@ -24,7 +24,7 @@ class Member(
         private set
 
     @Column(nullable = false)
-    var name: String = name
+    var nickname: String = nickname
         private set
 
 }

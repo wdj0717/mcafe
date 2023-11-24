@@ -14,7 +14,7 @@ class MemberResponse {
     class Result(val name: String, val phone: String) {
         companion object {
             fun of(memberDto: MemberDto): Result {
-                return Result(memberDto.name, memberDto.phone)
+                return Result(memberDto.nickname, memberDto.phone)
             }
         }
     }

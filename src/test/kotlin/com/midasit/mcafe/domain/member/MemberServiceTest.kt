@@ -25,7 +25,7 @@ class MemberServiceTest : BehaviorSpec({
         val member = Member(
             phone = "010-1234-5678",
             username = request.username,
-            name = request.name,
+            nickName = request.nickname,
             password = request.password,
             role = Role.USER
         )
@@ -34,7 +34,7 @@ class MemberServiceTest : BehaviorSpec({
         `when`("회원가입을 요청한다.") {
             val result = memberService.signup(request)
             then("회원가입이 완료된다.") {
-                result.name shouldBe member.name
+                result.nickname shouldBe member.nickname
                 result.phone shouldBe member.phone
             }
         }
@@ -45,7 +45,7 @@ class MemberServiceTest : BehaviorSpec({
         val member = Member(
             phone = "010-1234-1234",
             username = request.username,
-            name = "name",
+            nickName = "name",
             password = PasswordEncryptUtil.encrypt(request.password),
             role = Role.USER
         )
@@ -55,7 +55,7 @@ class MemberServiceTest : BehaviorSpec({
             every { jwtTokenProvider.generateAccessToken(any()) } returns "token"
             val result = memberService.login(request)
             then("로그인이 완료된다.") {
-                result.name shouldBe member.name
+                result.name shouldBe member.nickname
                 result.phone shouldBe member.phone
                 result.token shouldBe "token"
             }
