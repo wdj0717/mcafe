@@ -21,4 +21,10 @@ class OrderResponse {
         @Schema(description = "주문 정보", required = true)
         val orderDto: OrderDto
     )
+
+    @Schema(name = "OrderResponseGetOrderList", description = "주문 조회 응답 객체")
+    class GetOrderList(
+        @Schema(description = "주문 정보 리스트", required = true)
+        val orderList: List<OrderDto>
+    )
 }
