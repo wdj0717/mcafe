@@ -10,5 +10,5 @@ class OrderOption(
     @JoinColumn(name = "order_sn", nullable = false, foreignKey = ForeignKey(name = "fk_order_option_order_sn"))
     val order: Order,
     @Column(name = "option_value")
-    val optionValue: String
+    val optionValue: Long
 ) : BaseEntity()

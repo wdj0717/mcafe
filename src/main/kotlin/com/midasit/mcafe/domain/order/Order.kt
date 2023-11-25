@@ -17,7 +17,8 @@ class Order(
     val member: Member,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_sn", nullable = false, foreignKey = ForeignKey(name = "fk_order_room_sn"))
-    val room: Room
+    val room: Room,
+    quantity: Long
 ) : BaseEntity() {
 
     @Column(name = "status")
@@ -28,11 +29,19 @@ class Order(
     var orderKey: String? = null
         private set
 
+    @Column(name = "qauntity")
+    var quantity: Long = 1
+        private set
+
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
     val orderOptions: MutableList<OrderOption> = mutableListOf()
 
     fun addOption(optionValue: Long) {
-        val orderOption = OrderOption(this, optionValue.toString())
+        val orderOption = OrderOption(this, optionValue)
         orderOptions.add(orderOption)
+    }
+
+    fun addQuantity() {
+        quantity++
     }
 }
