@@ -17,11 +17,11 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class OrderService(
-    private val uChefComponent: UChefComponent,
-    private val orderRepository: OrderRepository,
-    private val roomMemberRepository: RoomMemberRepository,
-    private val roomService: RoomService,
-    private val memberService: MemberService
+        private val uChefComponent: UChefComponent,
+        private val orderRepository: OrderRepository,
+        private val roomMemberRepository: RoomMemberRepository,
+        private val roomService: RoomService,
+        private val memberService: MemberService
 ) {
 
     fun getMenuList(): OrderResponse.GetMenuList {
@@ -38,21 +38,19 @@ class OrderService(
         val member = memberService.findBySn(memberSn)
         val room = roomService.findRoomSn(request.roomSn)
         require(
-            roomMemberRepository.existsByRoomAndMember(
-                room,
-                member
-            )
+                roomMemberRepository.existsByRoomAndMember(
+                        room,
+                        member
+                )
         ) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
-        var order = findDuplicateOrder(member, room, request.menuCode, request.optionList)
 
-        if (order == null) {
-            order = Order(OrderStatus.PENDING, request.menuCode, member, room, 1)
+        val order = findDuplicateOrder(member, room, request.menuCode, request.optionList)
+        order?.addQuantity() ?: run {
+            val newOrder = Order(OrderStatus.PENDING, request.menuCode, member, room, 1)
             request.optionList.forEach {
-                order.addOption(it)
+                newOrder.addOption(it)
             }
-            return OrderDto.of(orderRepository.save(order))
-        } else {
-            order.addQuantity()
+            return OrderDto.of(orderRepository.save(newOrder))
         }
 
         return OrderDto.of(order)
@@ -60,23 +58,20 @@ class OrderService(
 
     private fun findDuplicateOrder(member: Member, room: Room, menuCode: String, optionList: List<Long>): Order? {
         val orderList = orderRepository.findByMemberAndRoomAndMenuCodeAndStatus(member, room, menuCode, OrderStatus.PENDING)
-        orderList.forEach{ order: Order ->
-            val optionSet = order.orderOptions.map { it.optionValue.toLong() }.toHashSet()
-            if (optionSet == optionList.toHashSet()) {
-                return order
-            }
+        return orderList.find { order ->
+            val optionSet = order.orderOptions.map { it.optionValue }.toHashSet()
+            optionSet == optionList.toHashSet()
         }
-        return null
     }
 
     fun getOrderList(memberSn: Long, roomSn: Long): List<OrderDto> {
         val member = memberService.findBySn(memberSn)
         val room = roomService.findRoomSn(roomSn)
         require(
-            roomMemberRepository.existsByRoomAndMember(
-                room,
-                member
-            )
+                roomMemberRepository.existsByRoomAndMember(
+                        room,
+                        member
+                )
         ) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
 
         val orderList = orderRepository.findByRoomAndStatus(room, OrderStatus.PENDING)

@@ -10,7 +10,7 @@ data class OrderDto(
     val roomSn: Long,
     val menuCode: String,
     val quantity: Long,
-    val optionList: List<String> = listOf()
+    val optionList: List<Long> = listOf()
 ) {
     companion object {
         fun of(order: Order): OrderDto {

@@ -37,7 +37,7 @@ class Order(
     val orderOptions: MutableList<OrderOption> = mutableListOf()
 
     fun addOption(optionValue: Long) {
-        val orderOption = OrderOption(this, optionValue.toString())
+        val orderOption = OrderOption(this, optionValue)
         orderOptions.add(orderOption)
     }
 
