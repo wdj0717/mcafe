@@ -1,5 +1,6 @@
 package com.midasit.mcafe.domain.room
 
+import com.midasit.mcafe.domain.member.Member
 import com.midasit.mcafe.domain.member.MemberService
 import com.midasit.mcafe.domain.room.dto.RoomDto
 import com.midasit.mcafe.domain.room.dto.RoomRequest
@@ -42,12 +43,7 @@ class RoomService(
     fun getRoomInfo(memberSn: Long, roomSn: Long): RoomResponse.GetRoomInfo {
         val member = memberService.findBySn(memberSn)
         val room = this.findBySn(roomSn)
-        require(
-            roomMemberRepository.existsByRoomAndMember(
-                room,
-                member
-            )
-        ) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
+        checkMemberInRoom(member, room)
 
         val roomMember = roomMemberRepository.findByRoom(room)
         val memberList = roomMember.map { RoomMemberDto.of(it.member) }
@@ -55,7 +51,7 @@ class RoomService(
         return RoomResponse.GetRoomInfo(RoomDto.of(room), memberList)
     }
 
-    fun findRoomSn(roomSn: Long): Room {
+    fun findByRoomSn(roomSn: Long): Room {
         return roomRepository.findById(roomSn)
             .orElseThrow { IllegalArgumentException("존재하지 않는 방입니다.") }
     }
@@ -112,6 +108,16 @@ class RoomService(
         roomRepository.delete(room)
 
         return true
+    }
+
+    fun checkMemberInRoom(member: Member, room: Room) {
+        require(
+            roomMemberRepository.existsByRoomAndMember(
+                room,
+                member
+            )
+        ) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
+
     }
 
     fun findBySn(roomSn: Long): Room {

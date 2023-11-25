@@ -1,7 +1,6 @@
 package com.midasit.mcafe.domain.payment
 
 import com.midasit.mcafe.domain.member.Member
-import com.midasit.mcafe.domain.order.Order
 import com.midasit.mcafe.model.BaseEntity
 import jakarta.persistence.*
 
@@ -11,7 +10,4 @@ class Payment(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_sn", nullable = false, foreignKey = ForeignKey(name = "fk_payment_member_sn"))
     val member: Member,
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_sn", nullable = false, foreignKey = ForeignKey(name = "fk_payment_order_sn"))
-    val order: Order,
 ) : BaseEntity()

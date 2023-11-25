@@ -1,6 +1,7 @@
 package com.midasit.mcafe.domain.order
 
 import com.midasit.mcafe.domain.member.Member
+import com.midasit.mcafe.domain.payment.Payment
 import com.midasit.mcafe.domain.room.Room
 import com.midasit.mcafe.model.BaseEntity
 import com.midasit.mcafe.model.OrderStatus
@@ -25,8 +26,9 @@ class Order(
     @Enumerated(EnumType.STRING)
     var status: OrderStatus = status
         private set
-    @Column(name = "order_key")
-    var orderKey: String? = null
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_sn", foreignKey = ForeignKey(name = "fk_order_payment_sn"))
+    var payment: Payment? = null
         private set
 
     @Column(name = "qauntity")
@@ -42,6 +44,14 @@ class Order(
     }
 
     fun addQuantity() {
-        quantity++
+        this.quantity++
+    }
+
+    fun setOrderStatus(orderStatus: OrderStatus) {
+        this.status = orderStatus
+    }
+
+    fun setPayment(payment: Payment) {
+        this.payment = payment
     }
 }
