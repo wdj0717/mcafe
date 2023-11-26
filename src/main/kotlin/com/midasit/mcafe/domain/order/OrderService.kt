@@ -9,19 +9,17 @@ import com.midasit.mcafe.domain.room.Room
 import com.midasit.mcafe.domain.room.RoomService
 import com.midasit.mcafe.domain.roommember.RoomMemberRepository
 import com.midasit.mcafe.infra.component.UChefComponent
-import com.midasit.mcafe.infra.exception.CustomException
-import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.OrderStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class OrderService(
-        private val uChefComponent: UChefComponent,
-        private val orderRepository: OrderRepository,
-        private val roomMemberRepository: RoomMemberRepository,
-        private val roomService: RoomService,
-        private val memberService: MemberService
+    private val uChefComponent: UChefComponent,
+    private val orderRepository: OrderRepository,
+    private val roomMemberRepository: RoomMemberRepository,
+    private val roomService: RoomService,
+    private val memberService: MemberService
 ) {
 
     fun getMenuList(): OrderResponse.GetMenuList {
@@ -36,13 +34,8 @@ class OrderService(
     fun createOrder(memberSn: Long, request: OrderRequest.Create): OrderDto {
 
         val member = memberService.findBySn(memberSn)
-        val room = roomService.findRoomSn(request.roomSn)
-        require(
-                roomMemberRepository.existsByRoomAndMember(
-                        room,
-                        member
-                )
-        ) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
+        val room = roomService.findByRoomSn(request.roomSn)
+        roomService.checkMemberInRoom(member, room)
 
         val order = findDuplicateOrder(member, room, request.menuCode, request.optionList)
         order?.addQuantity() ?: run {
@@ -66,13 +59,8 @@ class OrderService(
 
     fun getOrderList(memberSn: Long, roomSn: Long): List<OrderDto> {
         val member = memberService.findBySn(memberSn)
-        val room = roomService.findRoomSn(roomSn)
-        require(
-                roomMemberRepository.existsByRoomAndMember(
-                        room,
-                        member
-                )
-        ) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
+        val room = roomService.findByRoomSn(roomSn)
+        roomService.checkMemberInRoom(member, room)
 
         val orderList = orderRepository.findByRoomAndStatus(room, OrderStatus.PENDING)
         return orderList.map { OrderDto.of(it) }

@@ -36,7 +36,7 @@ class OrderServiceTest : BehaviorSpec({
         }
         ReflectionTestUtils.setField(room, "sn", roomSn)
         every { memberService.findBySn(any()) } returns member
-        every { roomService.findRoomSn(any()) } returns room
+        every { roomService.findByRoomSn(any()) } returns room
         every { orderRepository.save(any()) } returns order
         When("주문 등록하면") {
             val result = orderService.createOrder(memberSn, request)

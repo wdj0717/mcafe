@@ -1,6 +1,8 @@
 package com.midasit.mcafe.infra.component
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.midasit.mcafe.domain.member.Member
+import com.midasit.mcafe.domain.order.Order
 import com.midasit.mcafe.domain.order.dto.*
 import com.midasit.mcafe.infra.component.rs.uchef.login.UChefLoginRs
 import com.midasit.mcafe.infra.component.rs.uchef.menu.UChefMenuRs
@@ -13,6 +15,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.time.Duration
 import java.util.*
 
@@ -82,6 +86,12 @@ class UChefComponent(
         val uChefMenuRs = objectMapper.readValue(res, UChefMenuRs::class.java)
 
         return parseMenuList(uChefMenuRs)
+    }
+
+    fun payOrder(member: Member, orderList: List<Order>) {
+        val csName: String = URLEncoder.encode(member.nickname, StandardCharsets.UTF_8)
+        val phone: String = member.phone
+
     }
 
     private fun createUChefClient(): WebClient {
