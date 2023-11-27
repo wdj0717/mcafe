@@ -1,5 +1,7 @@
 package com.midasit.mcafe.infra.config.jwt
 
+import com.midasit.mcafe.infra.exception.CustomException
+import com.midasit.mcafe.infra.exception.ErrorMessage
 import io.jsonwebtoken.*
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.lang3.StringUtils
@@ -61,7 +63,7 @@ class JwtTokenProvider {
         } catch (e: IllegalArgumentException) {
             throw JwtException("JWT claims string is empty.")
         } catch (e: ExpiredJwtException) {
-            throw JwtException("Expired JWT token")
+            throw CustomException(ErrorMessage.EXPIRED_JWT)
         }
     }
 

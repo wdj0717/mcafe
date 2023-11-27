@@ -13,6 +13,7 @@ enum class ErrorMessage(
     DUPLICATE_ID("중복된 아이디가 존재합니다.", HttpStatus.CONFLICT),
     INVALID_LOGIN_REQUEST("아이디가 존재하지 않거나 비밀번호가 틀렸습니다.", HttpStatus.UNAUTHORIZED),
     INVALID_PASSWORD_CHECK("비밀번호 확인이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+    EXPIRED_JWT("인증 토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED),
 
     // 방
     DUPLICATE_ROOM_NAME("이미 존재하는 방 이름입니다.", HttpStatus.CONFLICT),
