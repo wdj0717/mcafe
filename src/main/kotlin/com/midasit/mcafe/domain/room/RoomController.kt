@@ -5,10 +5,12 @@ import com.midasit.mcafe.domain.room.dto.RoomResponse
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@Tag(name = "방 컨트롤러")
 @RequestMapping("/room")
 class RoomController(val roomService: RoomService) {
 

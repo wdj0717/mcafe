@@ -14,7 +14,7 @@ class Room(
     @JoinColumn(name = "host_sn", nullable = false, foreignKey = ForeignKey(name = "fk_room_host_sn"))
     val host: Member,
     @Enumerated(EnumType.STRING)
-    val status: RoomStatus
+    var status: RoomStatus
 ) : BaseEntity() {
     @Column(nullable = false)
     var name: String = name
@@ -22,4 +22,8 @@ class Room(
 
     var password: String? = password
         private set
+
+    fun updateRoomStatus(roomStatus: RoomStatus) {
+        this.status = roomStatus
+    }
 }

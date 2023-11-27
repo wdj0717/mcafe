@@ -1,4 +1,4 @@
-package com.midasit.mcafe.infra.component.rs.uchef.projectSeq
+package com.midasit.mcafe.infra.component.rs.uchef.projectseq
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

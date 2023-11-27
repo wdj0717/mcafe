@@ -87,13 +87,9 @@ class RoomService(
     fun exitRoom(memberSn: Long, roomSn: Long): Boolean {
         val member = memberService.findBySn(memberSn)
         val room = this.findBySn(roomSn)
+        this.checkMemberInRoom(member, room)
         require(room.host != member) { throw CustomException(ErrorMessage.HOST_CANT_EXIT) }
-        require(
-            roomMemberRepository.deleteByRoomAndMember(
-                room,
-                member
-            ) > 0
-        ) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
+        room.updateRoomStatus(RoomStatus.CLOSED)
 
         return true
     }
@@ -111,6 +107,7 @@ class RoomService(
     }
 
     fun checkMemberInRoom(member: Member, room: Room) {
+        require(room.status != RoomStatus.CLOSED) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
         require(
             roomMemberRepository.existsByRoomAndMember(
                 room,
