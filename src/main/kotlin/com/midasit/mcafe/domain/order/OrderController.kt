@@ -21,7 +21,7 @@ class OrderController(
 
     @GetMapping("/menu/{menuCode}")
     @Operation(summary = "메뉴 정보 조회", description = "메뉴 정보를 조회합니다.")
-    fun getMenu(@PathVariable menuCode: String): OrderResponse.GetMenuInfo {
+    fun getMenuInfo(@PathVariable menuCode: String): OrderResponse.GetMenuInfo {
         return orderService.getMenuInfo(menuCode)
     }
 
