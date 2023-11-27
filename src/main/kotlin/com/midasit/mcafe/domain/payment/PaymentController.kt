@@ -20,7 +20,7 @@ class PaymentController(private val paymentService: PaymentService) {
         @RequestBody rq: PaymentRequest.PayOrder
     ): PaymentResponse.PayOrder {
         val memberSn = getMemberSn(authentication)
-        return PaymentResponse.PayOrder(paymentService.payOrder(memberSn, rq.roomSn))
+        return paymentService.payOrder(memberSn, rq.roomSn)
     }
 
     private fun getMemberSn(authentication: Authentication): Long {

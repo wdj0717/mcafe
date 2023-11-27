@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.midasit.mcafe.domain.member.Member
 import com.midasit.mcafe.domain.order.Order
 import com.midasit.mcafe.domain.order.dto.*
+import com.midasit.mcafe.infra.component.rq.uchef.payorder.OrderRq
 import com.midasit.mcafe.infra.component.rs.uchef.login.UChefLoginRs
 import com.midasit.mcafe.infra.component.rs.uchef.menu.UChefMenuRs
 import com.midasit.mcafe.infra.component.rs.uchef.menuinfo.UChefMenuInfoRs
-import com.midasit.mcafe.infra.component.rs.uchef.projectSeq.UChefProjectSeqRs
+import com.midasit.mcafe.infra.component.rs.uchef.payorder.UChefPayOrderRs
+import com.midasit.mcafe.infra.component.rs.uchef.projectseq.UChefProjectSeqRs
 import com.midasit.mcafe.infra.component.rs.uchef.securityid.UChefSecurityIdRs
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
@@ -15,8 +17,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import java.time.Duration
 import java.util.*
 
@@ -38,19 +38,14 @@ class UChefComponent(
     @Value("\${u-chef.path.menu}")
     private val uChefMenuPath: String,
     @Value("\${u-chef.path.menu-info}")
-    private val uChefMenuInfoPath: String
+    private val uChefMenuInfoPath: String,
+    @Value("\${u-chef.path.pay-order}")
+    private val uChefPayOrderPath: String
 ) {
+    private var menuMap = HashMap<String, MenuInfoDto>()
 
-    fun getMenuInfo(menuCode: Long): MenuInfoDto {
-        val res = createUChefClient()
-            .get()
-            .uri(uChefMenuInfoPath, menuCode, shopMemberSeq)
-            .retrieve()
-            .bodyToMono(String::class.java)
-            .block()
-        val uChefMenuInfoRs = objectMapper.readValue(res, UChefMenuInfoRs::class.java)
-
-        return parseMenuInfo(uChefMenuInfoRs)
+    fun getMenuInfo(menuCode: String): MenuInfoDto {
+        return menuMap[menuCode] ?: requestMenuInfo(menuCode)
     }
 
     fun login(phone: String, securityId: String, password: String): String {
@@ -88,14 +83,49 @@ class UChefComponent(
         return parseMenuList(uChefMenuRs)
     }
 
-    fun payOrder(member: Member, orderList: List<Order>) {
-        val csName: String = URLEncoder.encode(member.nickname, StandardCharsets.UTF_8)
+    fun payOrder(member: Member, orderList: List<Order>): String {
+        val csName: String = member.nickname
         val phone: String = member.phone
+        val orderRqList = makeOrderRqList(orderList)
+        val orderListParam: String =
+            objectMapper.writeValueAsString(orderRqList) ?: throw CustomException(ErrorMessage.INTERNAL_SERVER_ERROR)
+        val couponAmount: Long = calculatePrice(orderRqList)
 
+        val res = createUChefClient()
+            .get()
+            .uri(uChefPayOrderPath, orderListParam, csName, phone, couponAmount, shopMemberSeq, getProjectSeq())
+            .retrieve()
+            .bodyToMono(String::class.java)
+            .block()
+        val uChefPayOrderRs = objectMapper.readValue(res, UChefPayOrderRs::class.java)
+
+        if (uChefPayOrderRs.resultCode == "0") {
+            return uChefPayOrderRs.searchResult.orderNo
+        } else {
+            throw CustomException(ErrorMessage.UCHEF_ORDER_FAILED)
+        }
+    }
+
+    private fun calculatePrice(orderListParam: List<OrderRq>): Long {
+        return orderListParam.sumOf { it.couponAmount * it.menuQty }
     }
 
     private fun createUChefClient(): WebClient {
         return webClient.mutate().baseUrl(uChefDomain).build()
+    }
+
+    private fun requestMenuInfo(menuCode: String): MenuInfoDto {
+        val res = createUChefClient()
+            .get()
+            .uri(uChefMenuInfoPath, menuCode, shopMemberSeq)
+            .retrieve()
+            .bodyToMono(String::class.java)
+            .block()
+        val uChefMenuInfoRs = objectMapper.readValue(res, UChefMenuInfoRs::class.java)
+        val menuInfoDto = parseMenuInfo(uChefMenuInfoRs)
+        menuMap[menuCode] = menuInfoDto
+
+        return menuInfoDto
     }
 
     private fun getProjectSeq(): Int {
@@ -164,4 +194,10 @@ class UChefComponent(
         return MenuInfoDto(menuName, menuCode, menuPrice, menuStock, optionGroupDtoList)
     }
 
+    private fun makeOrderRqList(orderList: List<Order>): List<OrderRq> {
+        val orderRqList: List<OrderRq> = orderList.map {
+            OrderRq.of(it, getMenuInfo(it.menuCode))
+        }
+        return orderRqList
+    }
 }

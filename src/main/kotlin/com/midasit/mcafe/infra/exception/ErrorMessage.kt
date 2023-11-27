@@ -20,4 +20,5 @@ enum class ErrorMessage(
     INVALID_ROOM_INFO("잘못된 방 정보입니다.", HttpStatus.BAD_REQUEST),
     INVALID_ROOM_PASSWORD("방 비밀번호가 틀렸습니다.", HttpStatus.UNAUTHORIZED),
     HOST_CANT_EXIT("방장은 방을 나갈 수 없습니다.", HttpStatus.BAD_REQUEST),
+    UCHEF_ORDER_FAILED("m cafe 주문에 실패하였습니다.", HttpStatus.BAD_REQUEST),
 }

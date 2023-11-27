@@ -7,7 +7,6 @@ import com.midasit.mcafe.domain.order.dto.OrderRequest
 import com.midasit.mcafe.domain.order.dto.OrderResponse
 import com.midasit.mcafe.domain.room.Room
 import com.midasit.mcafe.domain.room.RoomService
-import com.midasit.mcafe.domain.roommember.RoomMemberRepository
 import com.midasit.mcafe.infra.component.UChefComponent
 import com.midasit.mcafe.model.OrderStatus
 import org.springframework.stereotype.Service
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional
 class OrderService(
     private val uChefComponent: UChefComponent,
     private val orderRepository: OrderRepository,
-    private val roomMemberRepository: RoomMemberRepository,
     private val roomService: RoomService,
     private val memberService: MemberService
 ) {
@@ -26,7 +24,7 @@ class OrderService(
         return OrderResponse.GetMenuList(uChefComponent.getMenuList())
     }
 
-    fun getMenuInfo(menuCode: Long): OrderResponse.GetMenuInfo {
+    fun getMenuInfo(menuCode: String): OrderResponse.GetMenuInfo {
         return OrderResponse.GetMenuInfo(uChefComponent.getMenuInfo(menuCode))
     }
 
