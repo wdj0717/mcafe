@@ -47,6 +47,10 @@ class Order(
         this.quantity++
     }
 
+    fun updateQuantity(quantity: Long) {
+        this.quantity = quantity
+    }
+
     fun updateOrderStatus(orderStatus: OrderStatus) {
         this.status = orderStatus
     }

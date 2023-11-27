@@ -45,7 +45,18 @@ class OrderController(
         return OrderResponse.GetOrderList(orderService.getOrderList(memberSn, roomSn))
     }
 
-    @DeleteMapping("{orderSn}")
+    @PatchMapping("/{orderSn}")
+    @Operation(summary = "주문 수량 변경", description = "주문 수량을 변경합니다.")
+    fun updateOrderQuantity(
+        authentication: Authentication,
+        @RequestBody rq: OrderRequest.UpdateQuantity,
+        @PathVariable orderSn: Long
+    ): Boolean {
+        val memberSn = getMemberSn(authentication)
+        return orderService.updateOrderQuantity(memberSn, orderSn, rq.quantity)
+    }
+
+    @DeleteMapping("/{orderSn}")
     @Operation(summary = "주문 삭제", description = "주문을 삭제합니다.")
     fun deleteOrder(
         authentication: Authentication,

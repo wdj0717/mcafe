@@ -49,19 +49,33 @@ class OrderService(
     }
 
     @Transactional
+    fun updateOrderQuantity(memberSn: Long, orderSn: Long, quantity: Long): Boolean {
+        val member = memberService.findBySn(memberSn)
+        val order = findBySn(orderSn)
+
+        require(order.member == member) { throw CustomException(ErrorMessage.INVALID_REQUEST) }
+        order.updateQuantity(quantity)
+
+        return true
+    }
+
+    @Transactional
     fun deleteOrder(memberSn: Long, roomSn: Long, orderSn: Long): Boolean {
         val member = memberService.findBySn(memberSn)
         val room = roomService.findByRoomSn(roomSn)
         roomService.checkMemberInRoom(member, room)
 
-        val order = orderRepository.findBySnAndStatus(orderSn, OrderStatus.PENDING) ?: throw CustomException(
-            ErrorMessage.INVALID_REQUEST
-        )
+        val order = findBySn(orderSn)
         require(room.host == member || order.member == member) { throw CustomException(ErrorMessage.INVALID_REQUEST) }
 
         orderRepository.delete(order)
 
         return true
+    }
+
+    fun findBySn(orderSn: Long): Order {
+        return orderRepository.findBySnAndStatus(orderSn, OrderStatus.PENDING)
+            ?: throw CustomException(ErrorMessage.INVALID_REQUEST)
     }
 
     private fun findDuplicateOrder(member: Member, room: Room, menuCode: String, optionList: List<Long>): Order? {
