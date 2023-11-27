@@ -8,6 +8,8 @@ import com.midasit.mcafe.domain.order.dto.OrderResponse
 import com.midasit.mcafe.domain.room.Room
 import com.midasit.mcafe.domain.room.RoomService
 import com.midasit.mcafe.infra.component.UChefComponent
+import com.midasit.mcafe.infra.exception.CustomException
+import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.OrderStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -30,7 +32,6 @@ class OrderService(
 
     @Transactional
     fun createOrder(memberSn: Long, request: OrderRequest.Create): OrderDto {
-
         val member = memberService.findBySn(memberSn)
         val room = roomService.findByRoomSn(request.roomSn)
         roomService.checkMemberInRoom(member, room)
@@ -47,8 +48,25 @@ class OrderService(
         return OrderDto.of(order)
     }
 
+    @Transactional
+    fun deleteOrder(memberSn: Long, roomSn: Long, orderSn: Long): Boolean {
+        val member = memberService.findBySn(memberSn)
+        val room = roomService.findByRoomSn(roomSn)
+        roomService.checkMemberInRoom(member, room)
+
+        val order = orderRepository.findBySnAndStatus(orderSn, OrderStatus.PENDING) ?: throw CustomException(
+            ErrorMessage.INVALID_REQUEST
+        )
+        require(room.host == member || order.member == member) { throw CustomException(ErrorMessage.INVALID_REQUEST) }
+
+        orderRepository.delete(order)
+
+        return true
+    }
+
     private fun findDuplicateOrder(member: Member, room: Room, menuCode: String, optionList: List<Long>): Order? {
-        val orderList = orderRepository.findByMemberAndRoomAndMenuCodeAndStatus(member, room, menuCode, OrderStatus.PENDING)
+        val orderList =
+            orderRepository.findByMemberAndRoomAndMenuCodeAndStatus(member, room, menuCode, OrderStatus.PENDING)
         return orderList.find { order ->
             val optionSet = order.orderOptions.map { it.optionValue }.toHashSet()
             optionSet == optionList.toHashSet()

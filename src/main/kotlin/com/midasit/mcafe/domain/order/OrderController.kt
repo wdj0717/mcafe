@@ -45,6 +45,17 @@ class OrderController(
         return OrderResponse.GetOrderList(orderService.getOrderList(memberSn, roomSn))
     }
 
+    @DeleteMapping("{orderSn}")
+    @Operation(summary = "주문 삭제", description = "주문을 삭제합니다.")
+    fun deleteOrder(
+        authentication: Authentication,
+        @RequestParam(value="roomSn") roomSn: Long,
+        @PathVariable(value = "orderSn") orderSn: Long
+    ): Boolean {
+        val memberSn = getMemberSn(authentication)
+        return orderService.deleteOrder(memberSn, roomSn, orderSn)
+    }
+
     private fun getMemberSn(authentication: Authentication): Long {
         return (authentication.principal as Long)
     }
