@@ -8,6 +8,5 @@ interface RoomMemberRepository: JpaRepository<RoomMember, Long> {
     fun findByRoom(room: Room): List<RoomMember>
     fun findByMember(member: Member): List<RoomMember>
     fun existsByRoomAndMember(room: Room, member: Member): Boolean
-    fun deleteByRoomAndMember(room: Room, member: Member): Long
     fun deleteByRoom(room: Room): Long
 }
