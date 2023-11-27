@@ -4,5 +4,5 @@ class OptionDto(
     val name: String,
     val code: Long,
     val price: Long,
-    val default: Boolean
+    val isDefault: Boolean
 )
