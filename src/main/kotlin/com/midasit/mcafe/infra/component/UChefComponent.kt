@@ -99,11 +99,9 @@ class UChefComponent(
             .block()
         val uChefPayOrderRs = objectMapper.readValue(res, UChefPayOrderRs::class.java)
 
-        if (uChefPayOrderRs.resultCode == "0") {
-            return uChefPayOrderRs.searchResult.orderNo
-        } else {
-            throw CustomException(ErrorMessage.UCHEF_ORDER_FAILED)
-        }
+        require(uChefPayOrderRs.resultCode == "0") { throw CustomException(ErrorMessage.UCHEF_ORDER_FAILED) }
+
+        return uChefPayOrderRs.searchResult.orderNo
     }
 
     private fun calculatePrice(orderListParam: List<OrderRq>): Long {
@@ -195,9 +193,8 @@ class UChefComponent(
     }
 
     private fun makeOrderRqList(orderList: List<Order>): List<OrderRq> {
-        val orderRqList: List<OrderRq> = orderList.map {
+        return orderList.map {
             OrderRq.of(it, getMenuInfo(it.menuCode))
         }
-        return orderRqList
     }
 }
