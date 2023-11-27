@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @Tag(name = "주문 컨트롤러")
+@RequestMapping("/order")
 class OrderController(
     private val orderService: OrderService
 ) {
@@ -24,7 +25,7 @@ class OrderController(
         return orderService.getMenuInfo(menuCode)
     }
 
-    @PostMapping("/order")
+    @PostMapping
     @Operation(summary = "주문 생성", description = "주문을 생성합니다.")
     fun createOrder(
         @RequestBody request: OrderRequest.Create,
@@ -34,7 +35,7 @@ class OrderController(
         return OrderResponse.Create(orderService.createOrder(memberSn, request))
     }
 
-    @GetMapping("/order")
+    @GetMapping
     @Operation(summary = "주문 목록 조회", description = "주문 목록을 조회합니다.")
     fun getOrderList(
         authentication: Authentication,
