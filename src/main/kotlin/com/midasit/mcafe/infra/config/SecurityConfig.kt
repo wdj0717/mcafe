@@ -10,6 +10,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 
 @Configuration
@@ -27,8 +30,8 @@ class SecurityConfig(val jwtTokenProvider: JwtTokenProvider) {
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         return http
+            .cors { it.configurationSource(corsConfigure()) }
             .csrf { it.disable() }
-            .cors { it.disable() }
             .authorizeHttpRequests {
                 it.requestMatchers(
                     "/api-docs/**", "/health", "/swagger-ui.html",
@@ -37,8 +40,6 @@ class SecurityConfig(val jwtTokenProvider: JwtTokenProvider) {
                     .permitAll()
                     .requestMatchers("/test/**", "/order/menu/**", "/member/**")
                     .permitAll()
-                    .requestMatchers("/room/**")
-                    .authenticated()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(
@@ -47,5 +48,21 @@ class SecurityConfig(val jwtTokenProvider: JwtTokenProvider) {
             .formLogin { it.disable() }
             .logout { it.disable() }
             .build()
+    }
+
+    private fun corsConfigure(): CorsConfigurationSource {
+        val configuration = CorsConfiguration()
+        configuration.addAllowedOriginPattern(WILD_CARD)
+        configuration.addAllowedHeader(WILD_CARD)
+        configuration.addAllowedMethod(WILD_CARD)
+        configuration.allowCredentials = true
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration(WILD_CARD_PATTERN, configuration)
+        return source
+    }
+
+    companion object {
+        private const val WILD_CARD = "*"
+        private const val WILD_CARD_PATTERN = "/**"
     }
 }
