@@ -2,6 +2,8 @@ package com.midasit.mcafe.domain.room
 
 import com.midasit.mcafe.domain.member.Member
 import com.midasit.mcafe.domain.member.MemberService
+import com.midasit.mcafe.domain.order.OrderRepository
+import com.midasit.mcafe.domain.order.dto.OrderDto
 import com.midasit.mcafe.domain.room.dto.RoomDto
 import com.midasit.mcafe.domain.room.dto.RoomRequest
 import com.midasit.mcafe.domain.room.dto.RoomResponse
@@ -10,6 +12,7 @@ import com.midasit.mcafe.domain.roommember.RoomMemberRepository
 import com.midasit.mcafe.domain.roommember.dto.RoomMemberDto
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
+import com.midasit.mcafe.model.OrderStatus
 import com.midasit.mcafe.model.RoomStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional
 class RoomService(
     val roomRepository: RoomRepository,
     val roomMemberRepository: RoomMemberRepository,
+    val orderRepository: OrderRepository,
     val memberService: MemberService,
 ) {
     @Transactional
@@ -46,9 +50,11 @@ class RoomService(
         checkMemberInRoom(member, room)
 
         val roomMember = roomMemberRepository.findByRoom(room)
+        val orderList = orderRepository.findByRoomAndStatus(room, OrderStatus.PENDING)
+        val orderDtoList = orderList.map { OrderDto.of(it) }
         val memberList = roomMember.map { RoomMemberDto.of(it.member) }
 
-        return RoomResponse.GetRoomInfo(RoomDto.of(room), memberList)
+        return RoomResponse.GetRoomInfo(RoomDto.of(room), memberList, orderDtoList)
     }
 
     fun findByRoomSn(roomSn: Long): Room {
