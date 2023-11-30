@@ -35,6 +35,6 @@ class PaymentService(
             it.setOrderStatus(OrderStatus.DONE)
         }
 
-        return PaymentResponse.PayOrder(orderNo, orderList.map { OrderDto.of(it) })
+        return PaymentResponse.PayOrder(orderNo, orderList.map { OrderDto.of(it, uChefComponent.getMenuInfo(it.menuCode)) })
     }
 }

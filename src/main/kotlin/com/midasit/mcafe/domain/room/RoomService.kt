@@ -10,6 +10,7 @@ import com.midasit.mcafe.domain.room.dto.RoomResponse
 import com.midasit.mcafe.domain.roommember.RoomMember
 import com.midasit.mcafe.domain.roommember.RoomMemberRepository
 import com.midasit.mcafe.domain.roommember.dto.RoomMemberDto
+import com.midasit.mcafe.infra.component.UChefComponent
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.OrderStatus
@@ -24,6 +25,7 @@ class RoomService(
     val roomMemberRepository: RoomMemberRepository,
     val orderRepository: OrderRepository,
     val memberService: MemberService,
+    val uChefComponent: UChefComponent
 ) {
     @Transactional
     fun createRoom(request: RoomRequest.Create, memberSn: Long): RoomDto {
@@ -51,7 +53,7 @@ class RoomService(
 
         val roomMember = roomMemberRepository.findByRoom(room)
         val orderList = orderRepository.findByRoomAndStatus(room, OrderStatus.PENDING)
-        val orderDtoList = orderList.map { OrderDto.of(it) }
+        val orderDtoList = orderList.map { OrderDto.of(it, uChefComponent.getMenuInfo(it.menuCode)) }
         val memberList = roomMember.map { RoomMemberDto.of(it.member) }
 
         return RoomResponse.GetRoomInfo(RoomDto.of(room), memberList, orderDtoList)

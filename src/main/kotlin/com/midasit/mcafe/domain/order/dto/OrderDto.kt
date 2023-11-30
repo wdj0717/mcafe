@@ -8,16 +8,16 @@ data class OrderDto(
     val memberSn: Long,
     val memberNickname: String,
     val roomSn: Long,
-    val menuCode: String,
+    val menu: MenuInfoDto,
     val quantity: Long,
     val optionList: List<Long> = listOf()
 ) {
     companion object {
-        fun of(order: Order): OrderDto {
+        fun of(order: Order, menu: MenuInfoDto): OrderDto {
             if(order.orderOptions.isEmpty()) {
-                return OrderDto(order.member.sn, order.member.nickname, order.room.sn, order.menuCode, order.quantity)
+                return OrderDto(order.member.sn, order.member.nickname, order.room.sn, menu, order.quantity)
             }
-            return OrderDto(order.member.sn, order.member.nickname, order.room.sn, order.menuCode, order.quantity, order.orderOptions.map { it.optionValue })
+            return OrderDto(order.member.sn, order.member.nickname, order.room.sn, menu, order.quantity, order.orderOptions.map { it.optionValue })
         }
     }
 }
