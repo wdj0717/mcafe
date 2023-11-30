@@ -22,10 +22,10 @@ class JwtTokenProvider {
     private var secretKey: String = ""
 
     @Value("\${jwt.access.token.expiration}")
-    private val accessTokenExpiration = 30
+    private val accessTokenExpiration = 240
 
     @Value("\${jwt.refresh.token.expiration}")
-    private val refreshTokenExpiration = 30
+    private val refreshTokenExpiration = 240
 
     init {
         secretKey = Base64.getEncoder().encodeToString(secretKey.toByteArray())

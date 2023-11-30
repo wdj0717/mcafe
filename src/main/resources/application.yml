@@ -50,7 +50,7 @@ jwt:
     key: ENC(wo85QhTHIrilTgPhSHmBKg==)
   access:
     token:
-      expiration: 30
+      expiration: 240
   refresh:
     token:
-      expiration: 30
+      expiration: 240
