@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val sn: Long? = null
+    val sn: Long = 0L
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
