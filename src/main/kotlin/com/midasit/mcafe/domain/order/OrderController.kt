@@ -35,16 +35,6 @@ class OrderController(
         return OrderResponse.Create(orderService.createOrder(memberSn, request))
     }
 
-    @GetMapping
-    @Operation(summary = "주문 목록 조회", description = "주문 목록을 조회합니다.")
-    fun getOrderList(
-        authentication: Authentication,
-        @RequestParam(value="roomSn") roomSn: Long
-    ): OrderResponse.GetOrderList {
-        val memberSn = getMemberSn(authentication)
-        return OrderResponse.GetOrderList(orderService.getOrderList(memberSn, roomSn))
-    }
-
     @PatchMapping("/{orderSn}")
     @Operation(summary = "주문 수량 변경", description = "주문 수량을 변경합니다.")
     fun updateOrderQuantity(

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(name = "OrderDto", description = "주문 DTO")
 data class OrderDto(
+    val orderSn: Long,
     val memberSn: Long,
     val memberNickname: String,
     val roomSn: Long,
@@ -14,10 +15,17 @@ data class OrderDto(
 ) {
     companion object {
         fun of(order: Order, menu: MenuInfoDto): OrderDto {
-            if(order.orderOptions.isEmpty()) {
-                return OrderDto(order.member.sn, order.member.nickname, order.room.sn, menu, order.quantity)
+            if (order.orderOptions.isEmpty()) {
+                return OrderDto(order.sn, order.member.sn, order.member.nickname, order.room.sn, menu, order.quantity)
             }
-            return OrderDto(order.member.sn, order.member.nickname, order.room.sn, menu, order.quantity, order.orderOptions.map { it.optionValue })
+            return OrderDto(
+                order.sn,
+                order.member.sn,
+                order.member.nickname,
+                order.room.sn,
+                menu,
+                order.quantity,
+                order.orderOptions.map { it.optionValue })
         }
     }
 }
