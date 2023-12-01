@@ -53,7 +53,7 @@ class OrderService(
         val member = memberService.findBySn(memberSn)
         val order = findBySn(orderSn)
 
-        require(order.member == member) { throw CustomException(ErrorMessage.INVALID_REQUEST) }
+        require(order.member.sn == member.sn) { throw CustomException(ErrorMessage.INVALID_REQUEST) }
         order.updateQuantity(quantity)
 
         return true
@@ -66,7 +66,7 @@ class OrderService(
         roomService.checkMemberInRoom(member, room)
 
         val order = findBySn(orderSn)
-        require(room.host == member || order.member == member) { throw CustomException(ErrorMessage.INVALID_REQUEST) }
+        require(room.host.sn == member.sn || order.member.sn == member.sn) { throw CustomException(ErrorMessage.INVALID_REQUEST) }
 
         orderRepository.delete(order)
 
