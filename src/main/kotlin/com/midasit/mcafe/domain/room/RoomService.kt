@@ -106,7 +106,7 @@ class RoomService(
     fun deleteRoom(memberSn: Long, roomSn: Long): Boolean {
         val member = memberService.findBySn(memberSn)
         val room = this.findBySn(roomSn)
-        require(room.host == member) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
+        require(room.host.sn == member.sn) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
 
         roomMemberRepository.deleteByRoom(room)
         roomRepository.delete(room)
