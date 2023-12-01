@@ -23,7 +23,7 @@ class PaymentService(
     @Transactional
     fun payOrder(memberSn: Long, roomSn: Long): PaymentResponse.PayOrder {
         val member = memberService.findBySn(memberSn)
-        val room = roomService.findByRoomSn(roomSn)
+        val room = roomService.findBySn(roomSn)
         roomService.checkMemberInRoom(member, room)
 
         val orderList = orderRepository.findByRoomAndStatus(room, OrderStatus.PENDING)
@@ -35,6 +35,8 @@ class PaymentService(
             it.updateOrderStatus(OrderStatus.DONE)
         }
 
-        return PaymentResponse.PayOrder(orderNo, orderList.map { OrderDto.of(it, uChefComponent.getMenuInfo(it.menuCode)) })
+        return PaymentResponse.PayOrder(
+            orderNo,
+            orderList.map { OrderDto.of(it, uChefComponent.getMenuInfo(it.menuCode)) })
     }
 }

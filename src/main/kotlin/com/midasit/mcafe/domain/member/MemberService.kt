@@ -9,6 +9,7 @@ import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.PasswordEncryptUtil
 import com.midasit.mcafe.model.Role
+import com.midasit.mcafe.model.validate
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -55,15 +56,14 @@ class MemberService(
     }
 
     fun findBySn(memberSn: Long): Member {
-        return memberRepository.findBySn(memberSn) ?: throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST)
+        return memberRepository.getOrThrow(memberSn)
     }
 
     private fun validateMember(request: MemberRequest.Signup): String {
         // 비밀번호 체크 검사
-        require(request.password == request.passwordCheck) { throw CustomException(ErrorMessage.INVALID_PASSWORD_CHECK) }
-
+        validate(ErrorMessage.INVALID_PASSWORD_CHECK) { request.password == request.passwordCheck }
         // 아이디 중복체크 검사
-        require(!memberRepository.existsByUsername(request.username)) { throw CustomException(ErrorMessage.DUPLICATE_ID) }
+        validate(ErrorMessage.DUPLICATE_ID) { !memberRepository.existsByUsername(request.username) }
 
         // u chef 인증 검사
         val valueOperations = redisTemplate.opsForValue()
