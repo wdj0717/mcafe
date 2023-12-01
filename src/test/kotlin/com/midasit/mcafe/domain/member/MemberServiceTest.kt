@@ -25,7 +25,7 @@ class MemberServiceTest : BehaviorSpec({
         val member = Member(
             phone = "010-1234-5678",
             username = request.username,
-            nickName = request.nickname,
+            nickname = request.nickname,
             password = request.password,
             role = Role.USER
         )
@@ -45,7 +45,7 @@ class MemberServiceTest : BehaviorSpec({
         val member = Member(
             phone = "010-1234-1234",
             username = request.username,
-            nickName = "name",
+            nickname = "name",
             password = PasswordEncryptUtil.encrypt(request.password),
             role = Role.USER
         )

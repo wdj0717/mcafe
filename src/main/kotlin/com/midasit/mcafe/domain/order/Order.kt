@@ -25,15 +25,15 @@ class Order(
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     var status: OrderStatus = status
-        private set
+        protected set
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_sn", foreignKey = ForeignKey(name = "fk_order_payment_sn"))
     var payment: Payment? = null
-        private set
+        protected set
 
     @Column(name = "qauntity")
     var quantity: Long = 1
-        private set
+        protected set
 
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
     val orderOptions: MutableList<OrderOption> = mutableListOf()
@@ -47,11 +47,11 @@ class Order(
         this.quantity++
     }
 
-    fun setOrderStatus(orderStatus: OrderStatus) {
+    fun updateOrderStatus(orderStatus: OrderStatus) {
         this.status = orderStatus
     }
 
-    fun setPayment(payment: Payment) {
+    fun attachPayment(payment: Payment) {
         this.payment = payment
     }
 }

@@ -6,6 +6,7 @@ import com.midasit.mcafe.domain.room.dto.RoomResponse
 import com.midasit.mcafe.model.ControllerTest
 import com.midasit.mcafe.model.RoomStatus
 import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import org.mockito.InjectMocks
@@ -25,9 +26,13 @@ class RoomControllerTest : ControllerTest() {
     }
 
     init {
+        afterContainer {
+            clearAllMocks()
+        }
+
         given("방 생성을 위한 정보를 받아온다.") {
-            val request = RoomRequest.Create("test", "test", RoomStatus.PUBLIC)
-            val roomDto = RoomDto(1, request.name, request.password, request.status)
+            val request = RoomRequest.Create("test", RoomStatus.PUBLIC, "test")
+            val roomDto = RoomDto(1L, 1L, "test", request.name, request.status)
             every { roomService.createRoom(any(), any()) } returns roomDto
             `when`("방 생성을 요청한다.") {
                 val res = perform(

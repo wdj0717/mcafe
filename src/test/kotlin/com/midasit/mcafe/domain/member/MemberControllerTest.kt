@@ -7,6 +7,7 @@ import com.midasit.mcafe.domain.member.dto.MemberResponse
 import com.midasit.mcafe.model.ControllerTest
 import com.midasit.mcafe.model.Role
 import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import org.mockito.InjectMocks
@@ -26,6 +27,11 @@ class MemberControllerTest : ControllerTest() {
     }
 
     init {
+
+        afterContainer {
+            clearAllMocks()
+        }
+
         given("회원가입을 위한 정보를 받아온다.") {
             val request = MemberRequest.Signup("username", "1q2w3e4r5t", "1q2w3e4r5t", "name", "certKey")
             every { memberService.signup(any()) } returns MemberDto("name", "010-1234-5678", Role.USER)

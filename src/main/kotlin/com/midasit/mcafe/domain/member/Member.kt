@@ -21,10 +21,10 @@ class Member(
     @Column(nullable = false)
     @Convert(converter = PasswordConverter::class)
     var password: String = password
-        private set
+        protected set
 
     @Column(nullable = false)
     var nickname: String = nickname
-        private set
+        protected set
 
 }

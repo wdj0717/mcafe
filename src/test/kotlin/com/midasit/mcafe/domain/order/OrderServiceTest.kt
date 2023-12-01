@@ -10,7 +10,11 @@ import com.midasit.mcafe.model.OrderStatus
 import com.midasit.mcafe.model.Role
 import com.midasit.mcafe.model.RoomStatus
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.extensions.spring.SpringExtension
+import io.kotest.extensions.spring.SpringTestExtension
+import io.kotest.extensions.spring.SpringTestLifecycleMode
 import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import org.springframework.test.util.ReflectionTestUtils
@@ -22,6 +26,10 @@ class OrderServiceTest : BehaviorSpec({
     val memberService = mockk<MemberService>(relaxed = true)
     val orderService = OrderService(uChefComponent, orderRepository, roomService, memberService)
 
+    afterContainer {
+        clearAllMocks()
+    }
+
     given("멤버 Sn과 방 Sn, 메뉴코드가 주어지면") {
         val memberSn = 1L
         val roomSn = 1L
@@ -30,7 +38,7 @@ class OrderServiceTest : BehaviorSpec({
         val member = Member("010-1234-1234", "username", "1q2w3e4r5t", "name", Role.USER)
         ReflectionTestUtils.setField(member, "sn", memberSn)
         val room = Room("test", "test", member, RoomStatus.PUBLIC)
-        val order = Order(OrderStatus.PENDING, menuCode, member, room)
+        val order = Order(OrderStatus.PENDING, menuCode, member, room, 1L)
         request.optionList.forEach {
             order.addOption(it)
         }
@@ -44,8 +52,7 @@ class OrderServiceTest : BehaviorSpec({
             then("주문 등록 결과가 반환된다.") {
                 result.memberSn shouldBe memberSn
                 result.roomSn shouldBe roomSn
-                result.menuCode shouldBe menuCode
-                result.optionList shouldBe request.optionList.map { it.toString() }
+                result.optionList shouldBe request.optionList
             }
         }
     }

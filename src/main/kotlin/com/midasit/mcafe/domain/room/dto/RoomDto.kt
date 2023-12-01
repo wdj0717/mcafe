@@ -14,8 +14,6 @@ data class RoomDto(
 ) {
     companion object {
         fun of(room: Room): RoomDto {
-            room.sn ?: throw IllegalArgumentException("Room sn must not be null")
-            room.host.sn ?: throw IllegalArgumentException("Host sn must not be null")
             return RoomDto(room.sn, room.host.sn, room.host.nickname, room.name, room.status)
         }
     }

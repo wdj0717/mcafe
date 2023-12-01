@@ -31,8 +31,8 @@ class PaymentService(
 
         val payment = paymentRepository.save(Payment(member))
         orderList.forEach {
-            it.setPayment(payment)
-            it.setOrderStatus(OrderStatus.DONE)
+            it.attachPayment(payment)
+            it.updateOrderStatus(OrderStatus.DONE)
         }
 
         return PaymentResponse.PayOrder(orderNo, orderList.map { OrderDto.of(it, uChefComponent.getMenuInfo(it.menuCode)) })

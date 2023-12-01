@@ -18,10 +18,10 @@ class Room(
 ) : BaseEntity() {
     @Column(nullable = false)
     var name: String = name
-        private set
+        protected set
 
     var password: String? = password
-        private set
+        protected set
 
     fun updateRoomStatus(roomStatus: RoomStatus) {
         this.status = roomStatus
