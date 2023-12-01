@@ -8,9 +8,8 @@ import com.midasit.mcafe.domain.order.dto.OrderResponse
 import com.midasit.mcafe.domain.room.Room
 import com.midasit.mcafe.domain.room.RoomService
 import com.midasit.mcafe.infra.component.UChefComponent
-import com.midasit.mcafe.infra.exception.CustomException
-import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.OrderStatus
+import com.midasit.mcafe.model.validate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -33,7 +32,7 @@ class OrderService(
     @Transactional
     fun createOrder(memberSn: Long, request: OrderRequest.Create): OrderDto {
         val member = memberService.findBySn(memberSn)
-        val room = roomService.findByRoomSn(request.roomSn)
+        val room = roomService.findBySn(request.roomSn)
         roomService.checkMemberInRoom(member, room)
 
         val order = findDuplicateOrder(member, room, request.menuCode, request.optionList)
@@ -51,9 +50,9 @@ class OrderService(
     @Transactional
     fun updateOrderQuantity(memberSn: Long, orderSn: Long, quantity: Long): Boolean {
         val member = memberService.findBySn(memberSn)
-        val order = findBySn(orderSn)
+        val order = orderRepository.getOrThrow(orderSn)
 
-        require(order.member.sn == member.sn) { throw CustomException(ErrorMessage.INVALID_REQUEST) }
+        validate { order.member.sn == member.sn }
         order.updateQuantity(quantity)
 
         return true
@@ -62,20 +61,15 @@ class OrderService(
     @Transactional
     fun deleteOrder(memberSn: Long, roomSn: Long, orderSn: Long): Boolean {
         val member = memberService.findBySn(memberSn)
-        val room = roomService.findByRoomSn(roomSn)
+        val room = roomService.findBySn(roomSn)
         roomService.checkMemberInRoom(member, room)
 
-        val order = findBySn(orderSn)
-        require(room.host.sn == member.sn || order.member.sn == member.sn) { throw CustomException(ErrorMessage.INVALID_REQUEST) }
+        val order = orderRepository.getOrThrow(orderSn)
+        validate { room.host.sn == member.sn || order.member.sn == member.sn }
 
         orderRepository.delete(order)
 
         return true
-    }
-
-    fun findBySn(orderSn: Long): Order {
-        return orderRepository.findBySnAndStatus(orderSn, OrderStatus.PENDING)
-            ?: throw CustomException(ErrorMessage.INVALID_REQUEST)
     }
 
     private fun findDuplicateOrder(member: Member, room: Room, menuCode: String, optionList: List<Long>): Order? {

@@ -10,9 +10,6 @@ import com.midasit.mcafe.model.OrderStatus
 import com.midasit.mcafe.model.Role
 import com.midasit.mcafe.model.RoomStatus
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.extensions.spring.SpringExtension
-import io.kotest.extensions.spring.SpringTestExtension
-import io.kotest.extensions.spring.SpringTestLifecycleMode
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -44,7 +41,7 @@ class OrderServiceTest : BehaviorSpec({
         }
         ReflectionTestUtils.setField(room, "sn", roomSn)
         every { memberService.findBySn(any()) } returns member
-        every { roomService.findByRoomSn(any()) } returns room
+        every { roomService.findBySn(any()) } returns room
         every { orderRepository.save(any()) } returns order
         When("주문 등록하면") {
             val result = orderService.createOrder(memberSn, request)
