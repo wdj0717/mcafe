@@ -6,7 +6,9 @@ import com.midasit.mcafe.domain.order.dto.OrderDto
 import com.midasit.mcafe.domain.payment.dto.PaymentResponse
 import com.midasit.mcafe.domain.room.RoomService
 import com.midasit.mcafe.infra.component.UChefComponent
+import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.OrderStatus
+import com.midasit.mcafe.model.validate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -27,6 +29,8 @@ class PaymentService(
         roomService.checkMemberInRoom(member, room)
 
         val orderList = orderRepository.findByRoomAndStatus(room, OrderStatus.PENDING)
+        validate(ErrorMessage.EMPTY_ORDER_LIST) { orderList.isNotEmpty() }
+
         val orderNo = uChefComponent.payOrder(member, orderList)
 
         val payment = paymentRepository.save(Payment(member))
