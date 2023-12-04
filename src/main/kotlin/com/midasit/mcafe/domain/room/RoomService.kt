@@ -11,10 +11,10 @@ import com.midasit.mcafe.domain.roommember.RoomMember
 import com.midasit.mcafe.domain.roommember.RoomMemberRepository
 import com.midasit.mcafe.domain.roommember.dto.RoomMemberDto
 import com.midasit.mcafe.infra.component.UChefComponent
-import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.OrderStatus
 import com.midasit.mcafe.model.RoomStatus
+import com.midasit.mcafe.model.validate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -29,7 +29,7 @@ class RoomService(
 ) {
     @Transactional
     fun createRoom(request: RoomRequest.Create, memberSn: Long): RoomDto {
-        require(this.duplicateRoomName(request.name)) { throw CustomException(ErrorMessage.DUPLICATE_ROOM_NAME) }
+        validate(ErrorMessage.DUPLICATE_ROOM_NAME) { duplicateRoomName(request.name) }
         val member = memberService.findBySn(memberSn)
         val createdRoom = roomRepository.save(Room(request.name, request.password, member, request.status))
         roomMemberRepository.save(RoomMember(member, createdRoom))
@@ -59,11 +59,6 @@ class RoomService(
         return RoomResponse.GetRoomInfo(RoomDto.of(room), memberList, orderDtoList)
     }
 
-    fun findByRoomSn(roomSn: Long): Room {
-        return roomRepository.findById(roomSn)
-            .orElseThrow { IllegalArgumentException("존재하지 않는 방입니다.") }
-    }
-
     fun getEnteredRoomList(memberSn: Long): List<RoomDto> {
         val member = memberService.findBySn(memberSn)
 
@@ -79,12 +74,12 @@ class RoomService(
         val room = this.findBySn(roomSn)
 
         if (room.status == RoomStatus.PRIVATE) {
-            require(room.password == password) { throw CustomException(ErrorMessage.INVALID_ROOM_PASSWORD) }
+            validate(ErrorMessage.INVALID_ROOM_PASSWORD) { room.password == password }
         }
-        require(room.status != RoomStatus.CLOSED) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
+        validate(ErrorMessage.INVALID_ROOM_INFO) { room.status != RoomStatus.CLOSED }
 
         val notEntered = !roomMemberRepository.existsByRoomAndMember(room, member)
-        require(notEntered) { throw CustomException(ErrorMessage.ALREADY_ENTERED_ROOM) }
+        validate(ErrorMessage.ALREADY_ENTERED_ROOM) { notEntered }
 
         roomMemberRepository.save(RoomMember(member, room))
 
@@ -96,7 +91,7 @@ class RoomService(
         val member = memberService.findBySn(memberSn)
         val room = this.findBySn(roomSn)
         this.checkMemberInRoom(member, room)
-        require(room.host != member) { throw CustomException(ErrorMessage.HOST_CANT_EXIT) }
+        validate(ErrorMessage.HOST_CANT_EXIT) { room.host != member }
         room.updateRoomStatus(RoomStatus.CLOSED)
 
         return true
@@ -106,8 +101,7 @@ class RoomService(
     fun deleteRoom(memberSn: Long, roomSn: Long): Boolean {
         val member = memberService.findBySn(memberSn)
         val room = this.findBySn(roomSn)
-        require(room.host.sn == member.sn) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
-
+        validate(ErrorMessage.INVALID_ROOM_INFO) { room.host.sn == member.sn }
         roomMemberRepository.deleteByRoom(room)
         roomRepository.delete(room)
 
@@ -115,17 +109,16 @@ class RoomService(
     }
 
     fun checkMemberInRoom(member: Member, room: Room) {
-        require(room.status != RoomStatus.CLOSED) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
-        require(
+        validate(ErrorMessage.INVALID_ROOM_INFO) { room.status != RoomStatus.CLOSED }
+        validate(ErrorMessage.INVALID_ROOM_INFO) {
             roomMemberRepository.existsByRoomAndMember(
                 room,
                 member
             )
-        ) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
-
+        }
     }
 
     fun findBySn(roomSn: Long): Room {
-        return roomRepository.findBySn(roomSn) ?: throw CustomException(ErrorMessage.INVALID_ROOM_INFO)
+        return roomRepository.getOrThrow(roomSn)
     }
 }
