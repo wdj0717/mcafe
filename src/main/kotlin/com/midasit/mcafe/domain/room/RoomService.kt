@@ -92,7 +92,7 @@ class RoomService(
         val room = this.findBySn(roomSn)
         this.checkMemberInRoom(member, room)
         validate(ErrorMessage.HOST_CANT_EXIT) { room.host != member }
-        room.updateRoomStatus(RoomStatus.CLOSED)
+        roomMemberRepository.deleteByRoomAndMember(room, member)
 
         return true
     }
@@ -102,8 +102,7 @@ class RoomService(
         val member = memberService.findBySn(memberSn)
         val room = this.findBySn(roomSn)
         validate(ErrorMessage.INVALID_ROOM_INFO) { room.host.sn == member.sn }
-        roomMemberRepository.deleteByRoom(room)
-        roomRepository.delete(room)
+        room.updateRoomStatus(RoomStatus.CLOSED)
 
         return true
     }
