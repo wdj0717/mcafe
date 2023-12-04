@@ -82,6 +82,13 @@ class RoomController(val roomService: RoomService) {
         return RoomResponse.GetRoomList(roomService.getEnteredRoomList(memberSn))
     }
 
+    @Operation(summary = "방 정보 수정")
+    @PatchMapping
+    fun updateRoom(@RequestBody rq: RoomRequest.UpdateRoom, authentication: Authentication): Boolean {
+        val memberSn = getMemberSn(authentication)
+        return roomService.updateRoom(memberSn, rq.roomSn, rq.name, rq.status, rq.password)
+    }
+
     @Operation(summary = "방 나가기")
     @DeleteMapping("/exit/{roomSn}")
     fun exitRoom(

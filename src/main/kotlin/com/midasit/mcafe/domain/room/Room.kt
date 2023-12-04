@@ -23,7 +23,13 @@ class Room(
     var password: String? = password
         protected set
 
+    fun updateRoomName(name: String) {
+        this.name = name
+    }
     fun updateRoomStatus(roomStatus: RoomStatus) {
         this.status = roomStatus
+    }
+    fun updatePassword(password: String) {
+        this.password = password
     }
 }

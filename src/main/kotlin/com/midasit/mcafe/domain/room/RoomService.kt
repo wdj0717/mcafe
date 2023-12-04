@@ -11,6 +11,7 @@ import com.midasit.mcafe.domain.roommember.RoomMember
 import com.midasit.mcafe.domain.roommember.RoomMemberRepository
 import com.midasit.mcafe.domain.roommember.dto.RoomMemberDto
 import com.midasit.mcafe.infra.component.UChefComponent
+import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.OrderStatus
 import com.midasit.mcafe.model.RoomStatus
@@ -82,6 +83,24 @@ class RoomService(
         validate(ErrorMessage.ALREADY_ENTERED_ROOM) { notEntered }
 
         roomMemberRepository.save(RoomMember(member, room))
+
+        return true
+    }
+
+    @Transactional
+    fun updateRoom(memberSn: Long, roomSn: Long, name: String?, status: RoomStatus?, password: String?): Boolean {
+        val member = memberService.findBySn(memberSn)
+        val room = this.findBySn(roomSn)
+        validate(ErrorMessage.INVALID_ROOM_INFO) { room.status != RoomStatus.CLOSED }
+        validate(ErrorMessage.INVALID_ROOM_INFO) { room.host.sn == member.sn }
+
+        if (status == RoomStatus.CLOSED || (status == RoomStatus.PRIVATE && password == null)) {
+            throw CustomException(ErrorMessage.INVALID_ROOM_INFO)
+        }
+
+        name?.let { room.updateRoomName(it) }
+        status?.let { room.updateRoomStatus(it) }
+        password?.let { room.updatePassword(it) }
 
         return true
     }
