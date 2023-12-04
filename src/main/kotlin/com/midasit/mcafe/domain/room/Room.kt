@@ -23,6 +23,15 @@ class Room(
     var password: String? = password
         protected set
 
+    fun updateRoom(name: String?, roomStatus: RoomStatus?, password: String?) {
+        name?.let { this.name = it }
+        roomStatus?.let { this.status = it }
+        password?.let { this.password = it }
+
+        if (roomStatus == RoomStatus.PUBLIC) {
+            this.password = null
+        }
+    }
     fun updateRoomName(name: String) {
         this.name = name
     }

@@ -98,9 +98,7 @@ class RoomService(
             throw CustomException(ErrorMessage.INVALID_ROOM_INFO)
         }
 
-        name?.let { room.updateRoomName(it) }
-        status?.let { room.updateRoomStatus(it) }
-        password?.let { room.updatePassword(it) }
+        room.updateRoom(name, status, password)
 
         return true
     }
