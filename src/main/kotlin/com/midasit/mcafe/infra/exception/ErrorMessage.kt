@@ -1,7 +1,9 @@
 package com.midasit.mcafe.infra.exception
 
+import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.http.HttpStatus
 
+@Schema(description = "에러 메시지", enumAsRef = true)
 enum class ErrorMessage(
     val message: String,
     val httpStatus: HttpStatus

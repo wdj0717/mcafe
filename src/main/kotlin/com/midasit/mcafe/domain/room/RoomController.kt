@@ -5,6 +5,10 @@ import com.midasit.mcafe.domain.room.dto.RoomResponse
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
@@ -24,6 +28,26 @@ class RoomController(val roomService: RoomService) {
         return RoomResponse.Create.of(roomService.createRoom(request, memberSn))
     }
 
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "방 입장 성공"),
+            ApiResponse(
+                responseCode = "409",
+                description = "이미 입장한 방입니다.",
+                content = [Content(schema = Schema(implementation = ErrorMessage::class))]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "잘못된 방 정보입니다.",
+                content = [Content(schema = Schema(implementation = ErrorMessage::class))]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "방 비밀번호가 틀렸습니다.",
+                content = [Content(schema = Schema(implementation = ErrorMessage::class))]
+            )
+        ]
+    )
     @Operation(summary = "방 입장")
     @PostMapping("/enter/{roomSn}")
     fun enterRoom(
