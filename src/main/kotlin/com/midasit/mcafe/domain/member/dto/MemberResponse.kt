@@ -11,10 +11,14 @@ class MemberResponse {
     class UsernameCheck(val isPossible: Boolean)
 
     @Schema(description = "유저 정보", name = "MemberResponseResult")
-    class Result(val name: String, val phone: String) {
+    class Result(
+        val username: String,
+        val nickname: String,
+        val phone: String
+    ) {
         companion object {
             fun of(memberDto: MemberDto): Result {
-                return Result(memberDto.nickname, memberDto.phone)
+                return Result(memberDto.username, memberDto.nickname, memberDto.phone)
             }
         }
     }

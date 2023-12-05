@@ -4,6 +4,7 @@ import com.midasit.mcafe.domain.room.dto.RoomRequest
 import com.midasit.mcafe.domain.room.dto.RoomResponse
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
+import com.midasit.mcafe.model.BaseController
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @Tag(name = "방 컨트롤러")
 @RequestMapping("/room")
-class RoomController(val roomService: RoomService) {
+class RoomController(val roomService: RoomService) : BaseController {
 
     @Operation(summary = "방 생성")
     @PostMapping
@@ -109,9 +110,5 @@ class RoomController(val roomService: RoomService) {
         require(roomService.deleteRoom(memberSn, roomSn)) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
 
         return true
-    }
-
-    private fun getMemberSn(authentication: Authentication): Long {
-        return (authentication.principal as Long)
     }
 }
