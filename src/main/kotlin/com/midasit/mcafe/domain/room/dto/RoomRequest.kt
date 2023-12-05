@@ -8,5 +8,8 @@ class RoomRequest {
     class Create(val name: String, val status: RoomStatus, val password: String? = null)
 
     @Schema(name = "RoomRequestEnterRoom", description = "방 입장 요청 객체")
-    class EnterRoom(var password: String? = null)
+    class EnterRoom(val password: String? = null)
+
+    @Schema(name = "RoomRequestUpdateRoom", description = "방 정보 수정 요청 객체")
+    class UpdateRoom(val roomSn: Long, val name: String?, val status: RoomStatus?, val password: String? = null)
 }

@@ -87,6 +87,19 @@ class RoomService(
     }
 
     @Transactional
+    fun updateRoom(memberSn: Long, roomSn: Long, name: String?, status: RoomStatus?, password: String?): Boolean {
+        val member = memberService.findBySn(memberSn)
+        val room = this.findBySn(roomSn)
+        validate(ErrorMessage.INVALID_ROOM_INFO) { room.status != RoomStatus.CLOSED }
+        validate(ErrorMessage.INVALID_ROOM_INFO) { room.host.sn == member.sn }
+        validate(ErrorMessage.INVALID_ROOM_INFO) { status != RoomStatus.PRIVATE || password != null  }
+
+        room.updateRoom(name, status, password)
+
+        return true
+    }
+
+    @Transactional
     fun exitRoom(memberSn: Long, roomSn: Long): Boolean {
         val member = memberService.findBySn(memberSn)
         val room = this.findBySn(roomSn)
