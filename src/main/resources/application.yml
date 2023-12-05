@@ -40,7 +40,7 @@ u-chef:
   path:
     project-seq: /webApp.action?shop_member_seq={shop_member_seq}&mode=5150
     security-id: /webApp.action?mode=7100&shop_member_seq={shop_member_seq}&phone_id={phone}&project_seq={project_seq}
-    login: /webApp.action?mode=7100&shop_member_seq={shop_member_seq}&phone_id={phone}&passwd={password}&project_seq={project_seq}
+    login: /webApp.action?mode=7100&shop_member_seq={shop_member_seq}&coupon_type=3&phone_id={phone}&passwd={password}&project_seq={project_seq}
     menu: /webApp.action?mode=5151&shop_member_seq={shop_member_seq}&project_seq={project_seq}
     menu-info: /webApp.action?mode=5170&item_code={menu_code}&shop_member_seq={shop_member_seq}
     pay-order: /webApp.action?mode=5060&table_name=TKO&order_list={order_list}&ordered_cnt=0&cs_name={cs_name}&phone={phone}&is_pre_pay=0&coupon_id=welfare%20discount&coupon_amount={coupon_amount}&point_amount=0&pay_tip=0&shop_member_seq={shop_member_seq}&project_seq={project_seq}
