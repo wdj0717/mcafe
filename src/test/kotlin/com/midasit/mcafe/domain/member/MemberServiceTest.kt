@@ -1,13 +1,16 @@
 package com.midasit.mcafe.domain.member
 
+import com.midasit.mcafe.domain.member.dto.MemberDto
 import com.midasit.mcafe.domain.member.dto.MemberRequest
 import com.midasit.mcafe.infra.component.UChefComponent
 import com.midasit.mcafe.infra.config.jwt.JwtTokenProvider
+import com.midasit.mcafe.model.Member
 import com.midasit.mcafe.model.PasswordEncryptUtil
 import com.midasit.mcafe.model.Role
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import org.springframework.data.redis.core.RedisTemplate
@@ -19,6 +22,10 @@ class MemberServiceTest : BehaviorSpec({
     val uChefComponent = mockk<UChefComponent>(relaxed = true)
     val redisTemplate = mockk<RedisTemplate<String, Any>>(relaxed = true)
     val memberService = MemberService(uChefComponent, memberRepository, jwtTokenProvider, redisTemplate)
+
+    afterContainer {
+        clearAllMocks()
+    }
 
     given("회원가입을 위한 정보를 받아온다.") {
         val request = MemberRequest.Signup("username", "1q2w3e4r5t", "1q2w3e4r5t", "name", "certKey")
@@ -79,6 +86,18 @@ class MemberServiceTest : BehaviorSpec({
             }
             then("로그인이 실패한다.") {
                 exception.message shouldBe "아이디가 존재하지 않거나 비밀번호가 틀렸습니다."
+            }
+        }
+    }
+
+    given("멤버 sn이 주어지면") {
+        val memberSn = 1L
+        val member = Member()
+        every { memberRepository.getOrThrow(any()) } answers { member }
+        When("내 정보를 조회하였을 때") {
+            val result = memberService.findMemberInfo(memberSn)
+            Then("정상적으로 조회된다.") {
+                result shouldBe MemberDto.of(member)
             }
         }
     }

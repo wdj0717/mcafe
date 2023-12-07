@@ -2,6 +2,7 @@ package com.midasit.mcafe.domain.order
 
 import com.midasit.mcafe.domain.order.dto.OrderRequest
 import com.midasit.mcafe.domain.order.dto.OrderResponse
+import com.midasit.mcafe.model.BaseController
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.security.core.Authentication
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/order")
 class OrderController(
     private val orderService: OrderService
-) {
+) : BaseController {
     @GetMapping("/menu")
     @Operation(summary = "메뉴 목록 조회", description = "메뉴 목록을 조회합니다.")
     fun getMenuList(): OrderResponse.GetMenuList {
@@ -55,9 +56,5 @@ class OrderController(
     ): Boolean {
         val memberSn = getMemberSn(authentication)
         return orderService.deleteOrder(memberSn, roomSn, orderSn)
-    }
-
-    private fun getMemberSn(authentication: Authentication): Long {
-        return (authentication.principal as Long)
     }
 }

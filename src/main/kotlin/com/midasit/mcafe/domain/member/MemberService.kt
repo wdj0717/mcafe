@@ -55,6 +55,10 @@ class MemberService(
         } ?: throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST)
     }
 
+    fun findMemberInfo(memberSn: Long): MemberDto {
+        return MemberDto.of(findBySn(memberSn))
+    }
+
     fun findBySn(memberSn: Long): Member {
         return memberRepository.getOrThrow(memberSn)
     }
