@@ -17,4 +17,10 @@ class MemberRequest {
 
     @Schema(description = "로그인", name = "MemberRequestLogin")
     class Login(val username: String, val password: String)
+
+    @Schema(description = "닉네임 변경", name = "MemberRequestNickname")
+    class Nickname(val nickname: String)
+
+    @Schema(description = "비밀번호 변경", name = "MemberRequestPassword")
+    class Password(val password: String, val passwordCheck: String)
 }
