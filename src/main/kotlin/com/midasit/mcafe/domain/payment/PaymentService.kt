@@ -33,7 +33,7 @@ class PaymentService(
 
         val orderNo = uChefComponent.payOrder(member, orderList)
 
-        val payment = paymentRepository.save(Payment(member))
+        val payment = paymentRepository.save(Payment(member, orderNo))
         orderList.forEach {
             it.attachPayment(payment)
             it.updateOrderStatus(OrderStatus.DONE)

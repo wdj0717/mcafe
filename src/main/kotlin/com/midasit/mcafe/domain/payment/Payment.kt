@@ -10,4 +10,6 @@ class Payment(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_sn", nullable = false, foreignKey = ForeignKey(name = "fk_payment_member_sn"))
     val member: Member,
+    @Column(name = "uchef_order_no", nullable = false)
+    val uChefOrderNo: String,
 ) : BaseEntity()
