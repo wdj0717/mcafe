@@ -3,6 +3,7 @@ package com.midasit.mcafe.domain.member
 import com.midasit.mcafe.domain.member.dto.LoginDto
 import com.midasit.mcafe.domain.member.dto.MemberDto
 import com.midasit.mcafe.domain.member.dto.MemberRequest
+import com.midasit.mcafe.domain.roommember.RoomMemberRepository
 import com.midasit.mcafe.infra.component.UChefComponent
 import com.midasit.mcafe.infra.config.jwt.JwtTokenProvider
 import com.midasit.mcafe.infra.exception.CustomException
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 class MemberService(
     private val uChefComponent: UChefComponent,
     private val memberRepository: MemberRepository,
+    private val roomMemberRepository: RoomMemberRepository,
     private val jwtTokenProvider: JwtTokenProvider,
     private val redisTemplate: RedisTemplate<String, Any>
 ) {
@@ -42,7 +44,7 @@ class MemberService(
             nickname = request.nickname,
             role = Role.USER
         )
-        return MemberDto.of(memberRepository.save(member))
+        return memberRepository.save(member).toDto()
     }
 
     fun login(request: MemberRequest.Login): LoginDto {
@@ -56,16 +58,39 @@ class MemberService(
     }
 
     fun findMemberInfo(memberSn: Long): MemberDto {
-        return MemberDto.of(findBySn(memberSn))
+        return findBySn(memberSn).toDto()
     }
 
     fun findBySn(memberSn: Long): Member {
         return memberRepository.getOrThrow(memberSn)
     }
 
+    @Transactional
+    fun updateNickname(memberSn: Long, nickname: String): MemberDto {
+        val member = findBySn(memberSn)
+        member.updateNickname(nickname)
+        return member.toDto()
+    }
+
+
+    @Transactional
+    fun updatePassword(memberSn: Long, password: String, passwordCheck: String): MemberDto {
+        val member = findBySn(memberSn)
+        validatePassword(password, passwordCheck)
+        member.updatePassword(password)
+        return member.toDto()
+    }
+
+    @Transactional
+    fun deleteMember(memberSn: Long) {
+        val member = findBySn(memberSn)
+        roomMemberRepository.deleteByMember(member)
+        member.delete()
+    }
+
     private fun validateMember(request: MemberRequest.Signup): String {
         // 비밀번호 체크 검사
-        validate(ErrorMessage.INVALID_PASSWORD_CHECK) { request.password == request.passwordCheck }
+        validatePassword(request.password, request.passwordCheck)
         // 아이디 중복체크 검사
         validate(ErrorMessage.DUPLICATE_ID) { !memberRepository.existsByUsername(request.username) }
 
@@ -75,5 +100,13 @@ class MemberService(
             valueOperations.getAndDelete(request.certKey) ?: throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
 
         return phone.toString()
+    }
+
+    private fun validatePassword(password: String, passwordCheck: String) {
+        validate(ErrorMessage.INVALID_PASSWORD_CHECK) { password == passwordCheck }
+    }
+
+    private fun Member.toDto(): MemberDto {
+        return MemberDto.of(this)
     }
 }

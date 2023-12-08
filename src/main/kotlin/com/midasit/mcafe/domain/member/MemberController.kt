@@ -6,9 +6,11 @@ import com.midasit.mcafe.model.BaseController
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -47,5 +49,23 @@ class MemberController(private val memberService: MemberService) : BaseControlle
     @GetMapping
     fun findMemberInfo(authentication: Authentication): MemberResponse.Result {
         return MemberResponse.Result.of(memberService.findMemberInfo(getMemberSn(authentication)))
+    }
+
+    @Operation(summary = "닉네임 변경")
+    @PutMapping("/nickname")
+    fun updateNickname(authentication: Authentication, @RequestBody request: MemberRequest.Nickname): MemberResponse.Result {
+        return MemberResponse.Result.of(memberService.updateNickname(getMemberSn(authentication), request.nickname))
+    }
+
+    @Operation(summary = "비밀번호 변경")
+    @PutMapping("/password")
+    fun updatePassword(authentication: Authentication, @RequestBody request: MemberRequest.Password): MemberResponse.Result {
+        return MemberResponse.Result.of(memberService.updatePassword(getMemberSn(authentication), request.password, request.passwordCheck))
+    }
+
+    @Operation(summary = "회원 탈퇴")
+    @DeleteMapping
+    fun deleteMember(authentication: Authentication) {
+        return memberService.deleteMember(getMemberSn(authentication))
     }
 }

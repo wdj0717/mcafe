@@ -15,6 +15,7 @@ import org.mockito.InjectMocks
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class MemberControllerTest : ControllerTest() {
@@ -93,6 +94,24 @@ class MemberControllerTest : ControllerTest() {
                     result.nickname shouldBe member.nickname
                     result.username shouldBe member.username
                     result.phone shouldBe member.phone
+                }
+            }
+        }
+
+        given("닉네임 정보가 주어지면") {
+            val request = MemberRequest.Nickname("nickname")
+            val member = Member()
+            every { memberService.updateNickname(any(), any()) } answers { MemberDto.of(member) }
+            When("닉네임 API를 호출하면") {
+                val res = perform(
+                    put("/member/nickname")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON_VALUE)
+                ).andExpect { status().isOk }.andReturn()
+                Then("닉네임이 변경된다.") {
+                    val response = res.response.contentAsString
+                    val result = getObject(response, MemberResponse.Result::class.java)
+                    result.nickname shouldBe member.nickname
                 }
             }
         }
