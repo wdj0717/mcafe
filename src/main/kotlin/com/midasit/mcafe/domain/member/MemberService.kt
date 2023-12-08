@@ -3,6 +3,7 @@ package com.midasit.mcafe.domain.member
 import com.midasit.mcafe.domain.member.dto.LoginDto
 import com.midasit.mcafe.domain.member.dto.MemberDto
 import com.midasit.mcafe.domain.member.dto.MemberRequest
+import com.midasit.mcafe.domain.roommember.RoomMemberRepository
 import com.midasit.mcafe.infra.component.UChefComponent
 import com.midasit.mcafe.infra.config.jwt.JwtTokenProvider
 import com.midasit.mcafe.infra.exception.CustomException
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 class MemberService(
     private val uChefComponent: UChefComponent,
     private val memberRepository: MemberRepository,
+    private val roomMemberRepository: RoomMemberRepository,
     private val jwtTokenProvider: JwtTokenProvider,
     private val redisTemplate: RedisTemplate<String, Any>
 ) {
@@ -82,6 +84,7 @@ class MemberService(
     @Transactional
     fun deleteMember(memberSn: Long) {
         val member = findBySn(memberSn)
+        roomMemberRepository.deleteByMember(member)
         member.delete()
     }
 

@@ -2,6 +2,7 @@ package com.midasit.mcafe.domain.member
 
 import com.midasit.mcafe.domain.member.dto.MemberDto
 import com.midasit.mcafe.domain.member.dto.MemberRequest
+import com.midasit.mcafe.domain.roommember.RoomMemberRepository
 import com.midasit.mcafe.infra.component.UChefComponent
 import com.midasit.mcafe.infra.config.jwt.JwtTokenProvider
 import com.midasit.mcafe.infra.exception.CustomException
@@ -26,7 +27,13 @@ class MemberServiceTest : BehaviorSpec({
     val jwtTokenProvider = mockk<JwtTokenProvider>(relaxed = true)
     val uChefComponent = mockk<UChefComponent>(relaxed = true)
     val redisTemplate = mockk<RedisTemplate<String, Any>>(relaxed = true)
-    val memberService = MemberService(uChefComponent, memberRepository, jwtTokenProvider, redisTemplate)
+    val roomMemberRepository = mockk<RoomMemberRepository>(relaxed = true)
+    val memberService = MemberService(
+        uChefComponent = uChefComponent,
+        memberRepository = memberRepository,
+        jwtTokenProvider = jwtTokenProvider,
+        redisTemplate = redisTemplate,
+        roomMemberRepository = roomMemberRepository)
 
     afterContainer {
         clearAllMocks()
@@ -125,10 +132,12 @@ class MemberServiceTest : BehaviorSpec({
         val member = mockk<Member>()
         every { memberRepository.getOrThrow(any()) } answers { member }
         every { member.delete() } just Runs
+        every { roomMemberRepository.deleteByMember(any()) } just Runs
         When("멤버를 삭제하였을 때") {
             memberService.deleteMember(memberSn)
             Then("정상적으로 삭제된다.") {
                 verify(exactly = 1) { member.delete() }
+                verify(exactly = 1) { roomMemberRepository.deleteByMember(any()) }
             }
         }
     }
