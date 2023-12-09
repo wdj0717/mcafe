@@ -23,6 +23,6 @@ class PaymentController(private val paymentService: PaymentService) : BaseContro
         @RequestBody rq: PaymentRequest.PayOrder
     ): PaymentResponse.PayOrder {
         val memberSn = getMemberSn(authentication)
-        return paymentService.payOrder(memberSn, rq.roomSn)
+        return paymentService.payOrder(memberSn, rq.roomSn, rq.orderSnList)
     }
 }

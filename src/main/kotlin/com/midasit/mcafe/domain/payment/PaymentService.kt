@@ -23,12 +23,12 @@ class PaymentService(
     private val uChefComponent: UChefComponent
 ) {
     @Transactional
-    fun payOrder(memberSn: Long, roomSn: Long): PaymentResponse.PayOrder {
+    fun payOrder(memberSn: Long, roomSn: Long, orderSnList: List<Long>): PaymentResponse.PayOrder {
         val member = memberService.findBySn(memberSn)
         val room = roomService.findBySn(roomSn)
         roomService.checkMemberInRoom(member, room)
 
-        val orderList = orderRepository.findByRoomAndStatus(room, OrderStatus.PENDING)
+        val orderList = orderRepository.findByRoomAndSnInAndStatus(room, orderSnList, OrderStatus.PENDING)
         validate(ErrorMessage.EMPTY_ORDER_LIST) { orderList.isNotEmpty() }
 
         val orderNo = uChefComponent.payOrder(member, orderList)
