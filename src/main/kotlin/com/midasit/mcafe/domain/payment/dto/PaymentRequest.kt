@@ -8,5 +8,7 @@ class PaymentRequest {
     class PayOrder(
         @Schema(description = "room sn")
         val roomSn: Long,
+        @Schema(description = "order sn list")
+        val orderSnList: List<Long>
     )
 }

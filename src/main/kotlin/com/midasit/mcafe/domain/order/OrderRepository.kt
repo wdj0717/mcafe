@@ -20,4 +20,6 @@ interface OrderRepository : JpaRepository<Order, Long> {
     ): List<Order>
 
     fun findByRoomAndStatus(room: Room, status: OrderStatus): List<Order>
+
+    fun findByRoomAndSnInAndStatus(room: Room, snList: List<Long>, status: OrderStatus): List<Order>
 }
