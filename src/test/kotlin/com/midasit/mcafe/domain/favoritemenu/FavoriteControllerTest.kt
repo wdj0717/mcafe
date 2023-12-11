@@ -6,10 +6,14 @@ import com.midasit.mcafe.domain.favoritemenu.dto.FavoriteMenuResponse
 import com.midasit.mcafe.model.ControllerTest
 import io.kotest.matchers.collections.shouldExist
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.verify
 import org.mockito.InjectMocks
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -54,6 +58,19 @@ class FavoriteControllerTest : ControllerTest() {
                 Then("추가한 즐겨찾기 메뉴가 반환된다.") {
                     val result = getObject(response.response.contentAsString, FavoriteMenuResponse.Result::class.java)
                     result.menuCode shouldBe favoriteMenuDto.menuCode
+                }
+            }
+        }
+
+        given("menuCode가 주어지면") {
+            val favoriteSn = 2L
+            every { favoriteMenuService.deleteFavoriteMenu(any(), any()) } just Runs
+            When("해당 member의 즐겨찾기 메뉴를 삭제 API를 호출하면") {
+                perform(
+                    delete("/favorite/$favoriteSn")
+                ).andExpect { status().isOk }.andReturn()
+                Then("삭제 로직이 수행된다.") {
+                    verify(exactly = 1) { favoriteMenuService.deleteFavoriteMenu(any(), any()) }
                 }
             }
         }

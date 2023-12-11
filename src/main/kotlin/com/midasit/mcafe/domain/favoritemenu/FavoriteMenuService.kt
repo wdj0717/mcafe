@@ -25,16 +25,15 @@ class FavoriteMenuService(
         return favoriteMenuRepository.save(favoriteMenu).toDto()
     }
 
-
-    private fun FavoriteMenu.toDto(): FavoriteMenuDto {
-        return FavoriteMenuDto.from(this)
-    }
-
     @Transactional
     fun deleteFavoriteMenu(memberSn: Long, favoriteSn: Long) {
         val member = memberService.findBySn(memberSn)
         val favoriteMenu = favoriteMenuRepository.getOrThrow(favoriteSn)
         validate(ErrorMessage.INVALID_MEMBER) { favoriteMenu.member.sn == member.sn }
         favoriteMenuRepository.delete(favoriteMenu)
+    }
+
+    private fun FavoriteMenu.toDto(): FavoriteMenuDto {
+        return FavoriteMenuDto.from(this)
     }
 }
