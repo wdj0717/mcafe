@@ -1,11 +1,14 @@
 package com.midasit.mcafe.domain.favoritemenu
 
 import com.midasit.mcafe.domain.favoritemenu.dto.FavoriteMenuDto
+import com.midasit.mcafe.domain.favoritemenu.dto.FavoriteMenuRequest
 import com.midasit.mcafe.domain.favoritemenu.dto.FavoriteMenuResponse
 import com.midasit.mcafe.model.BaseController
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -19,8 +22,18 @@ class FavoriteMenuController(val favoriteMenuService: FavoriteMenuService) : Bas
         return favoriteMenuService.findFavoriteMenu(getMemberSn(authentication)).toResult()
     }
 
+    @Operation(summary = "즐겨찾기 메뉴 추가")
+    @PostMapping
+    fun createFavoriteMenu(@RequestBody request: FavoriteMenuRequest.Create, authentication: Authentication): FavoriteMenuResponse.Result {
+        return favoriteMenuService.createFavoriteMenu(getMemberSn(authentication), request.menuCode).toResult()
+    }
+
 
     private fun List<FavoriteMenuDto>.toResult(): FavoriteMenuResponse.Results {
         return FavoriteMenuResponse.Results.from(this)
+    }
+
+    private fun FavoriteMenuDto.toResult(): FavoriteMenuResponse.Result {
+        return FavoriteMenuResponse.Result.from(this)
     }
 }
