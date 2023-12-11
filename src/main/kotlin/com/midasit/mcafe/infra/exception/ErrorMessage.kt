@@ -28,4 +28,7 @@ enum class ErrorMessage(
 
     // 주문
     EMPTY_ORDER_LIST("장바구니가 비어있습니다.", HttpStatus.BAD_REQUEST),
+
+    //즐겨찾기
+    INVALID_MEMBER("잘못된 회원입니다.", HttpStatus.BAD_REQUEST),
 }

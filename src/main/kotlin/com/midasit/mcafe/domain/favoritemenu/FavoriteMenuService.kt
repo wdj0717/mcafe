@@ -2,6 +2,8 @@ package com.midasit.mcafe.domain.favoritemenu
 
 import com.midasit.mcafe.domain.favoritemenu.dto.FavoriteMenuDto
 import com.midasit.mcafe.domain.member.MemberService
+import com.midasit.mcafe.infra.exception.ErrorMessage
+import com.midasit.mcafe.model.validate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -26,5 +28,13 @@ class FavoriteMenuService(
 
     private fun FavoriteMenu.toDto(): FavoriteMenuDto {
         return FavoriteMenuDto.from(this)
+    }
+
+    @Transactional
+    fun deleteFavoriteMenu(memberSn: Long, favoriteSn: Long) {
+        val member = memberService.findBySn(memberSn)
+        val favoriteMenu = favoriteMenuRepository.getOrThrow(favoriteSn)
+        validate(ErrorMessage.INVALID_MEMBER) { favoriteMenu.member.sn == member.sn }
+        favoriteMenuRepository.delete(favoriteMenu)
     }
 }
