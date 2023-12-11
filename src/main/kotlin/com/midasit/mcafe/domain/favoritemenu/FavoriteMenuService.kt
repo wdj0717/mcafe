@@ -13,6 +13,18 @@ class FavoriteMenuService(
 ) {
     fun findFavoriteMenu(memberSn: Long): List<FavoriteMenuDto> {
         val member = memberService.findBySn(memberSn)
-        return favoriteMenuRepository.findByMember(member).map { FavoriteMenuDto.from(it) }
+        return favoriteMenuRepository.findByMember(member).map { it.toDto() }
+    }
+
+    @Transactional
+    fun createFavoriteMenu(memberSn: Long, menuCode: String): FavoriteMenuDto {
+        val member = memberService.findBySn(memberSn)
+        val favoriteMenu = FavoriteMenu(menuCode, member)
+        return favoriteMenuRepository.save(favoriteMenu).toDto()
+    }
+
+
+    private fun FavoriteMenu.toDto(): FavoriteMenuDto {
+        return FavoriteMenuDto.from(this)
     }
 }
