@@ -5,6 +5,7 @@ import com.midasit.mcafe.domain.favoritemenu.dto.FavoriteMenuRequest
 import com.midasit.mcafe.domain.favoritemenu.dto.FavoriteMenuResponse
 import com.midasit.mcafe.model.BaseController
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Tag(name = "즐겨찾기 컨트롤러")
 @RequestMapping("/favorite")
 class FavoriteMenuController(val favoriteMenuService: FavoriteMenuService) : BaseController {
 
