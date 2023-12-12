@@ -8,6 +8,7 @@ plugins {
     kotlin("jvm") version "1.8.22"
     kotlin("plugin.spring") version "1.8.22"
     kotlin("plugin.jpa") version "1.8.22"
+    kotlin("kapt") version "1.8.22"
 }
 
 allOpen {
@@ -54,6 +55,9 @@ dependencies {
     implementation("org.postgresql:postgresql:42.6.0")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
 
+    implementation(group = "com.querydsl", name = "querydsl-jpa", classifier = "jakarta")
+    kapt(group = "com.querydsl", name = "querydsl-apt", classifier = "jakarta")
+
 
     testImplementation("io.mockk:mockk:1.12.7")
     testImplementation("com.ninja-squad:springmockk:3.0.1")
@@ -62,6 +66,7 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
     testImplementation("com.h2database:h2:2.1.214")
 }
+
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
