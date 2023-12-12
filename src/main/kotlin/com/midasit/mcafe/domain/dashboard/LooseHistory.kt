@@ -6,10 +6,10 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "dash_board")
-class DashBoard(
+@Table(name = "loose_history")
+class LooseHistory(
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_sn", nullable = false, foreignKey = ForeignKey(name = "fk_dashboard_member_sn"))
+    @JoinColumn(name = "member_sn", nullable = false, foreignKey = ForeignKey(name = "fk_loose_history_member_sn"))
     val looser: Member,
     @Column(nullable = false)
     val looseDate: LocalDateTime
