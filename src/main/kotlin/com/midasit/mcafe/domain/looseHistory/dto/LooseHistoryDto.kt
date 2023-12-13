@@ -6,6 +6,6 @@ import com.midasit.mcafe.model.GameType
 data class LooseHistoryDto(
     val looser: Member,
     val gameType: GameType,
-    val looseCount: Int
+    val looseCount: Long
 ) {
 }
