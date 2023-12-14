@@ -51,7 +51,7 @@ class RoomServiceTest : BehaviorSpec({
         val room = Room("test", "test", member, RoomStatus.PUBLIC)
         val roomMember = RoomMember(member, room)
         ReflectionTestUtils.setField(room, "sn", 1L)
-        every { roomRepository.existsByName(any()) } answers { false }
+        every { roomRepository.existsByNameAndStatusNot(any(), eq(RoomStatus.CLOSED)) } answers { false }
         every { memberService.findBySn(any()) } returns member
         every { roomRepository.save(any()) } returns room
         every { roomMemberRepository.save(any()) } answers { roomMember }
@@ -63,7 +63,7 @@ class RoomServiceTest : BehaviorSpec({
         }
 
         `when`("방을 생성할 때 이미 존재하는 방 이름이 있으면") {
-            every { roomRepository.existsByName(any()) } answers { true }
+            every { roomRepository.existsByNameAndStatusNot(any(), eq(RoomStatus.CLOSED)) } answers { true }
             then("방이 생성되지 않는다.") {
                 shouldThrow<CustomException> {
                     roomService.createRoom(request, memberSn)

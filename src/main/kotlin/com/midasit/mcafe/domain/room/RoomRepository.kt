@@ -10,6 +10,6 @@ fun RoomRepository.getOrThrow(sn: Long): Room =
     findByIdOrNull(sn) ?: throw CustomException(ErrorMessage.INVALID_ROOM_INFO)
 
 interface RoomRepository : JpaRepository<Room, Long> {
-    fun existsByName(name: String): Boolean
+    fun existsByNameAndStatusNot(name: String, roomStatus: RoomStatus): Boolean
     fun findAllByStatusNot(roomStatus: RoomStatus): List<Room>
 }

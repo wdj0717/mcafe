@@ -38,7 +38,7 @@ class RoomService(
     }
 
     private fun duplicateRoomName(name: String): Boolean {
-        return !roomRepository.existsByName(name)
+        return !roomRepository.existsByNameAndStatusNot(name, RoomStatus.CLOSED)
     }
 
     fun getRoomList(): List<RoomDto> {
