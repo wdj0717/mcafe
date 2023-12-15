@@ -61,7 +61,7 @@ class MemberControllerTest : ControllerTest() {
 
         given("로그인 정보를 받아온다") {
             val request = MemberRequest.Login("010-1234-5678", "1q2w3e4r5t")
-            val loginDto = LoginDto(phone = "name", name = "010-1234-5678")
+            val loginDto = LoginDto(sn = 12345, phone = "name", name = "010-1234-5678")
             every { memberService.login(any()) } returns loginDto
             `when`("로그인을 요청한다.") {
                 val res = perform(

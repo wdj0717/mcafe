@@ -24,5 +24,5 @@ class MemberResponse {
     }
 
     @Schema(description = "로그인 유저 정보", name = "MemberResponseLogin")
-    class Login(val name: String, val phone: String, val token: String = "")
+    class Login(val sn:Long, val name: String, val phone: String, val token: String = "")
 }

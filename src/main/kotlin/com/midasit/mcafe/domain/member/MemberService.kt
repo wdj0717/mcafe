@@ -53,7 +53,7 @@ class MemberService(
                 throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST)
             }
             val accessToken = jwtTokenProvider.generateAccessToken(member.sn)
-            LoginDto(phone = member.phone, name = member.nickname, token = accessToken)
+            LoginDto(sn = member.sn, phone = member.phone, name = member.nickname, token = accessToken)
         } ?: throw CustomException(ErrorMessage.INVALID_LOGIN_REQUEST)
     }
 

@@ -42,7 +42,7 @@ class MemberController(private val memberService: MemberService) : BaseControlle
     @PostMapping("/login")
     fun login(@RequestBody request: MemberRequest.Login): MemberResponse.Login {
         val login = memberService.login(request)
-        return MemberResponse.Login(name = login.name, phone = login.phone, token = login.token)
+        return MemberResponse.Login(sn = login.sn, name = login.name, phone = login.phone, token = login.token)
     }
 
     @Operation(summary = "회원정보 조회")
