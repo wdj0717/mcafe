@@ -17,7 +17,14 @@ class GameReady(
     @JoinColumn(name = "room_sn", nullable = false, foreignKey = ForeignKey(name = "fk_gameready_room_sn"))
     val room: Room,
     @Enumerated(EnumType.STRING)
-    val readyStatus: ReadyStatus,
-    @Enumerated(EnumType.STRING)
     val gameType: GameType
-) : BaseEntity()
+) : BaseEntity() {
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ready_status", nullable = false)
+    var readyStatus: ReadyStatus = ReadyStatus.UNREADY
+
+    fun updateReadyStatus(readyStatus: ReadyStatus) {
+        this.readyStatus = readyStatus
+    }
+}
