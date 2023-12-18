@@ -1,18 +1,20 @@
 package com.midasit.mcafe.infra.component
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.midasit.mcafe.domain.member.Member
 import com.midasit.mcafe.domain.order.Order
 import com.midasit.mcafe.domain.order.dto.*
 import com.midasit.mcafe.infra.component.rq.uchef.payorder.OrderRq
 import com.midasit.mcafe.infra.component.rs.uchef.login.UChefLoginRs
+import com.midasit.mcafe.infra.component.rs.uchef.menu.ListRow
 import com.midasit.mcafe.infra.component.rs.uchef.menu.UChefMenuRs
+import com.midasit.mcafe.infra.component.rs.uchef.menuinfo.OptionGroup
 import com.midasit.mcafe.infra.component.rs.uchef.menuinfo.UChefMenuInfoRs
 import com.midasit.mcafe.infra.component.rs.uchef.payorder.UChefPayOrderRs
 import com.midasit.mcafe.infra.component.rs.uchef.projectseq.UChefProjectSeqRs
 import com.midasit.mcafe.infra.component.rs.uchef.securityid.UChefSecurityIdRs
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
+import com.midasit.mcafe.model.validate
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
@@ -49,55 +51,41 @@ class UChefComponent(
     }
 
     fun login(phone: String, securityId: String, password: String): String {
-        if (getSecurityId(phone) != securityId) {
-            throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
-        }
-        val res = createUChefClient()
-            .get()
-            .uri(uChefLogIn, shopMemberSeq, phone, password, getProjectSeq())
-            .retrieve()
-            .bodyToMono(String::class.java)
-            .block()
-        val uChefLogInRs = objectMapper.readValue(res, UChefLoginRs::class.java)
+        validate(ErrorMessage.INVALID_UCHEF_AUTH) { getSecurityId(phone) != securityId }
+        val res = getUChefClient(uChefLogIn, shopMemberSeq, phone, password, getProjectSeq())
+        val uChefLogInRs = res.toReadValue(UChefLoginRs::class.java)
 
-        if (uChefLogInRs.resultCode == "0") {
-            val uuid = UUID.randomUUID().toString()
-            val valueOperations = redisTemplate.opsForValue()
-            valueOperations.set(uuid, phone, Duration.ofMinutes(30))
+        validate(ErrorMessage.INVALID_UCHEF_AUTH) { uChefLogInRs.resultCode != "0" }
 
-            return uuid
-        } else {
-            throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
-        }
+        val uuid = UUID.randomUUID().toString()
+        val valueOperations = redisTemplate.opsForValue()
+        valueOperations.set(uuid, phone, Duration.ofMinutes(30))
+
+        return uuid
     }
 
-    fun getMenuList(): ArrayList<MenuCategoryDto> {
-        val res = createUChefClient()
-            .get()
-            .uri(uChefMenuPath, shopMemberSeq, getProjectSeq())
-            .retrieve()
-            .bodyToMono(String::class.java)
-            .block()
-        val uChefMenuRs = objectMapper.readValue(res, UChefMenuRs::class.java)
-
-        return parseMenuList(uChefMenuRs)
+    fun getMenuList(): List<MenuCategoryDto> {
+        val res = getUChefClient(uChefMenuPath, shopMemberSeq, getProjectSeq())
+        val uChefMenuRs = res.toReadValue(UChefMenuRs::class.java)
+        return uChefMenuRs.parseMenuList()
     }
 
-    fun payOrder(member: Member, orderList: List<Order>): String {
-        val csName: String = member.nickname
-        val phone: String = member.phone
-        val orderRqList = makeOrderRqList(orderList)
+    fun payOrder(nickname: String, phone: String, orderList: List<Order>): String {
+        val orderRqList = orderList.makeOrderRqList()
         val orderListParam: String =
             objectMapper.writeValueAsString(orderRqList) ?: throw CustomException(ErrorMessage.INTERNAL_SERVER_ERROR)
         val couponAmount: Long = calculatePrice(orderRqList)
 
-        val res = createUChefClient()
-            .get()
-            .uri(uChefPayOrderPath, orderListParam, csName, phone, couponAmount, shopMemberSeq, getProjectSeq())
-            .retrieve()
-            .bodyToMono(String::class.java)
-            .block()
-        val uChefPayOrderRs = objectMapper.readValue(res, UChefPayOrderRs::class.java)
+        val res = getUChefClient(
+            uChefPayOrderPath,
+            orderListParam,
+            nickname,
+            phone,
+            couponAmount,
+            shopMemberSeq,
+            getProjectSeq()
+        )
+        val uChefPayOrderRs = res.toReadValue(UChefPayOrderRs::class.java)
 
         require(uChefPayOrderRs.resultCode == "0") { throw CustomException(ErrorMessage.UCHEF_ORDER_FAILED) }
 
@@ -108,93 +96,74 @@ class UChefComponent(
         return orderListParam.sumOf { it.couponAmount * it.menuQty }
     }
 
-    private fun createUChefClient(): WebClient {
-        return webClient.mutate().baseUrl(uChefDomain).build()
-    }
-
     private fun requestMenuInfo(menuCode: String): MenuInfoDto {
-        val res = createUChefClient()
-            .get()
-            .uri(uChefMenuInfoPath, menuCode, shopMemberSeq)
-            .retrieve()
-            .bodyToMono(String::class.java)
-            .block()
+        val res = getUChefClient(uChefMenuInfoPath, menuCode, shopMemberSeq)
         val uChefMenuInfoRs = objectMapper.readValue(res, UChefMenuInfoRs::class.java)
-        val menuInfoDto = parseMenuInfo(uChefMenuInfoRs)
+        val menuInfoDto = uChefMenuInfoRs.parseMenuInfo()
         menuMap[menuCode] = menuInfoDto
 
         return menuInfoDto
     }
 
     private fun getProjectSeq(): Int {
-        val res = createUChefClient()
-            .get()
-            .uri(uChefProjectSeqPath, shopMemberSeq)
-            .retrieve()
-            .bodyToMono(String::class.java)
-            .block()
-        val uChefProjectSeqRs = objectMapper.readValue(res, UChefProjectSeqRs::class.java)
-
+        val res = getUChefClient(uChefProjectSeqPath, shopMemberSeq)
+        val uChefProjectSeqRs = res.toReadValue(UChefProjectSeqRs::class.java)
         return uChefProjectSeqRs.searchResult.memberData.defaultProjectSeq
     }
 
     private fun getSecurityId(phone: String): String {
-        val res = createUChefClient()
-            .get()
-            .uri(uChefGetSecurityId, shopMemberSeq, phone, getProjectSeq())
-            .retrieve()
-            .bodyToMono(String::class.java)
-            .block()
-
-        val uChefSecurityIdRs = objectMapper.readValue(res, UChefSecurityIdRs::class.java)
+        val res = getUChefClient(uChefGetSecurityId, shopMemberSeq, phone, getProjectSeq())
+        val uChefSecurityIdRs = res.toReadValue(UChefSecurityIdRs::class.java)
 
         return uChefSecurityIdRs.searchResult?.securityId ?: throw CustomException(ErrorMessage.INVALID_UCHEF_AUTH)
     }
 
-    private fun parseMenuList(uChefMenuRs: UChefMenuRs): ArrayList<MenuCategoryDto> {
-        val result = arrayListOf<MenuCategoryDto>()
+    private fun createUChefClient(): WebClient {
+        return webClient.mutate().baseUrl(uChefDomain).build()
+    }
 
-        uChefMenuRs.searchResult.jsonData.pageList.page.forEach { page ->
+    private fun getUChefClient(path: String, vararg params: Any): String? {
+        return createUChefClient()
+            .get()
+            .uri(path, *params)
+            .retrieve()
+            .bodyToMono(String::class.java)
+            .block()
+    }
+
+    private fun UChefMenuRs.parseMenuList(): List<MenuCategoryDto> {
+        return searchResult.jsonData.pageList.page.map { page ->
             val menuCategoryName = page.name
-            val menuList = arrayListOf<MenuDto>()
-            page.listComp.listRow.forEach { row ->
-                row.orderButtonComp.forEach { menu ->
-                    val (menuCode, menuUnit, menuPrice, menuName, menuStock) = menu
-                    val menuDto = MenuDto(menuName, menuCode, menuPrice, menuUnit, menuStock)
-                    menuList.add(menuDto)
-                }
+            val menuList = page.listComp.listRow.flatMap {
+                it.toMenuDto()
             }
-            val menuCategoryDto = MenuCategoryDto(menuCategoryName, menuList)
-            result.add(menuCategoryDto)
+            MenuCategoryDto(menuCategoryName, menuList)
         }
-
-        return result
     }
 
-    private fun parseMenuInfo(uChefMenuInfoRs: UChefMenuInfoRs): MenuInfoDto {
-        val optionGroupDtoList = arrayListOf<OptionGroupDto>()
-
-        val menuInfo = uChefMenuInfoRs.searchResult.menuInfoList[0]
-        val (menuCode, menuName, menuPrice, menuStock, optionGroupList) = menuInfo
-        optionGroupList.forEach { optionGroup ->
-            val optionDtoList = arrayListOf<OptionDto>()
-            val (optionGroupName, selectMin, selectMax, optionList) = optionGroup
-            optionList.forEach { option ->
-                val (optionName, optionCode, optionPrice, optionDefault) = option
-                val optionDto = OptionDto(optionName, optionCode, optionPrice, optionDefault)
-                optionDtoList.add(optionDto)
-            }
-
-            val optionGroupDto = OptionGroupDto(optionGroupName, selectMin, selectMax, optionDtoList)
-            optionGroupDtoList.add(optionGroupDto)
-        }
-
-        return MenuInfoDto(menuName, menuCode, menuPrice, menuStock, optionGroupDtoList)
+    private fun ListRow.toMenuDto() = orderButtonComp.map {
+        MenuDto.from(it)
     }
 
-    private fun makeOrderRqList(orderList: List<Order>): List<OrderRq> {
-        return orderList.map {
+    private fun UChefMenuInfoRs.parseMenuInfo(): MenuInfoDto {
+        val menuInfo = searchResult.menuInfoList[0]
+        val option = menuInfo.optionGroupList.map {
+            OptionGroupDto.of(it, it.getOptionDtoList())
+        }
+        return MenuInfoDto.of(menuInfo, option)
+    }
+
+    private fun OptionGroup.getOptionDtoList(): List<OptionDto> {
+        return optionList.map { OptionDto.from(it) }
+    }
+
+    private fun List<Order>.makeOrderRqList(): List<OrderRq> {
+        return map {
             OrderRq.of(it, getMenuInfo(it.menuCode))
         }
+    }
+
+    private fun <T> String?.toReadValue(clazz: Class<T>): T {
+        return objectMapper.readValue(this, clazz)
     }
 }

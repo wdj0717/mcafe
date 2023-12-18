@@ -31,7 +31,7 @@ class PaymentService(
         val orderList = orderRepository.findByRoomAndSnInAndStatus(room, orderSnList, OrderStatus.PENDING)
         validate(ErrorMessage.EMPTY_ORDER_LIST) { orderList.isNotEmpty() }
 
-        val orderNo = uChefComponent.payOrder(member, orderList)
+        val orderNo = uChefComponent.payOrder(member.nickname, member.phone, orderList)
 
         val payment = paymentRepository.save(Payment(member, orderNo))
         orderList.forEach {

@@ -9,7 +9,7 @@ class UChefMenuInfoRs(
 
 class SearchResult(
     @JsonProperty("list")
-    val menuInfoList: ArrayList<MenuInfo>
+    val menuInfoList: List<MenuInfo>
 )
 
 data class MenuInfo(
@@ -22,7 +22,7 @@ data class MenuInfo(
     @JsonProperty("item_stock")
     val stock: Long,
     @JsonProperty("option_group")
-    val optionGroupList: ArrayList<OptionGroup>
+    val optionGroupList: List<OptionGroup>
 )
 
 data class OptionGroup(
@@ -33,7 +33,7 @@ data class OptionGroup(
     @JsonProperty("group_max")
     val selectMax: Long,
     @JsonProperty("options")
-    val optionList: ArrayList<Option>
+    val optionList: List<Option>
 )
 
 data class Option(
