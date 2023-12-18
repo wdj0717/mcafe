@@ -67,13 +67,10 @@ class UChefComponent(
     }
 
     fun getMenuList(): List<MenuCategoryDto> {
-        return menuList ?: run {
-            val res = getUChefClient(uChefMenuPath, shopMemberSeq, getProjectSeq())
-            val uChefMenuRs = res.toReadValue(UChefMenuRs::class.java)
-            menuList = uChefMenuRs.parseMenuList()
-            uChefMenuRs.parseMenuList()
-        }
-
+        return menuList ?: getUChefClient(uChefMenuPath, shopMemberSeq, getProjectSeq())
+            .toReadValue(UChefMenuRs::class.java)
+            .parseMenuList()
+            .also { menuList = it }
     }
 
     fun payOrder(nickname: String, phone: String, orderList: List<Order>): String {
