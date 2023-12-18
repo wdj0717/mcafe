@@ -6,6 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 class LooseHistoryRequest {
 
     @Schema(name = "DashBoardRequestPost", description = "패배자 생성 rq")
-    class Post(val looserSn: Long, val gameType: GameType)
+    class Post(val looserSn: Long, val roomSn: Long, val gameType: GameType)
 
 }
