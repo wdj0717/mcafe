@@ -51,11 +51,11 @@ class UChefComponent(
     }
 
     fun login(phone: String, securityId: String, password: String): String {
-        validate(ErrorMessage.INVALID_UCHEF_AUTH) { getSecurityId(phone) != securityId }
+        validate(ErrorMessage.INVALID_UCHEF_AUTH) { getSecurityId(phone) == securityId }
         val res = getUChefClient(uChefLogIn, shopMemberSeq, phone, password, getProjectSeq())
         val uChefLogInRs = res.toReadValue(UChefLoginRs::class.java)
 
-        validate(ErrorMessage.INVALID_UCHEF_AUTH) { uChefLogInRs.resultCode != "0" }
+        validate(ErrorMessage.INVALID_UCHEF_AUTH) { uChefLogInRs.resultCode == "0" }
 
         val uuid = UUID.randomUUID().toString()
         val valueOperations = redisTemplate.opsForValue()
