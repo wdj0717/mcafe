@@ -1,5 +1,7 @@
 package com.midasit.mcafe.domain.gamedata
 
+import com.midasit.mcafe.infra.exception.CustomException
+import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.GameType
 import com.midasit.mcafe.model.ReadyStatus
 import jakarta.validation.constraints.NotNull
@@ -14,10 +16,9 @@ class GameReadyService(
     @Transactional
     fun updateGameReadyStatus(memberSn: Long, roomSn: Long, gameType: GameType, @NotNull readyStatus: ReadyStatus) : GameReady {
 
-        return gameReadyRepository.findGameReadyByMemberSnAndRoomSnAndGameType(memberSn, roomSn, gameType)?.let {
-            it.updateReadyStatus(readyStatus)
-            it
-        }?: throw Exception("게임 준비 상태가 존재하지 않습니다.")
+        val findGameReady = gameReadyRepository.findGameReadyByMemberSnAndRoomSnAndGameType(memberSn, roomSn, gameType)?: throw CustomException(ErrorMessage.NO_GAME_READY_STATUS)
+        findGameReady.updateReadyStatus(readyStatus)
+        return findGameReady
     }
 
     fun getGameReadyStatusOfRoomMember(roomSn: Long, gameType: GameType): List<GameReady> {
