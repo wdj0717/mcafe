@@ -5,5 +5,5 @@ import com.midasit.mcafe.model.GameType
 import java.time.LocalDateTime
 
 interface LooseHistoryRepositoryExtend {
-    fun findLooseHistoryDtoList(looserSnList: List<Long>, gType: GameType, startLooseDate: LocalDateTime, endLooseDate: LocalDateTime): List<LooseHistoryDto>
+    fun findLooseHistoryDtoList(looserSnList: List<Long>, roomSn: Long, gType: GameType, startLooseDate: LocalDateTime, endLooseDate: LocalDateTime): List<LooseHistoryDto>
 }

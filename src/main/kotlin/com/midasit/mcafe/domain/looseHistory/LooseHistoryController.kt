@@ -25,11 +25,12 @@ class LooseHistoryController(
     @Operation(summary = "패배자 조회")
     @GetMapping("/looser")
     fun getLooserData(@RequestParam memberSns: List<Long>,
+                      @RequestParam roomSn: Long,
                       @RequestParam gameType: GameType,
                       @RequestParam startDate: LocalDateTime,
                       @RequestParam endDate: LocalDateTime
                       ) : LooserHistoryResponse.Results {
-        return LooserHistoryResponse.Results.of(looseHistoryService.getLooseHistory(memberSns, gameType, startDate, endDate))
+        return LooserHistoryResponse.Results.of(looseHistoryService.getLooseHistory(memberSns, roomSn, gameType, startDate, endDate))
     }
 
 }
