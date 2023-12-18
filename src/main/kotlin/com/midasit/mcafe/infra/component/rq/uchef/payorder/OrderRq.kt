@@ -3,6 +3,7 @@ package com.midasit.mcafe.infra.component.rq.uchef.payorder
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.midasit.mcafe.domain.order.Order
+import com.midasit.mcafe.domain.order.OrderOption
 import com.midasit.mcafe.domain.order.dto.MenuInfoDto
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
@@ -26,17 +27,28 @@ class OrderRq(
     companion object {
         fun of(order: Order, menuInfoDto: MenuInfoDto): OrderRq {
             var couponAmount = menuInfoDto.price
-            val optionList = order.orderOptions.map { orderOption ->
-                val add = menuInfoDto.optionGroupList
-                    .flatMap { it.optionList }
-                    .firstOrNull { it.code == orderOption.optionValue }
-                    ?.price ?: throw CustomException(ErrorMessage.INTERNAL_SERVER_ERROR)
-
+            val optionList = order.orderOptions.map {
+                val add = addMenuOption(menuInfoDto, it)
                 couponAmount += add
-                listOf(orderOption.optionValue, 1, 1, "")
+                listOf(it.optionValue, 1, 1, "")
             }
 
-            return OrderRq(menuInfoDto.code, menuInfoDto.name, menuInfoDto.price, order.quantity, "", optionList, couponAmount)
+            return OrderRq(
+                menuInfoDto.code,
+                menuInfoDto.name,
+                menuInfoDto.price,
+                order.quantity,
+                "",
+                optionList,
+                couponAmount
+            )
+        }
+
+        private fun addMenuOption(menuInfoDto: MenuInfoDto, orderOption: OrderOption): Long {
+            return menuInfoDto.optionGroupList
+                .flatMap { it.optionList }
+                .firstOrNull { it.code == orderOption.optionValue }
+                ?.price ?: throw CustomException(ErrorMessage.INTERNAL_SERVER_ERROR)
         }
     }
 }
