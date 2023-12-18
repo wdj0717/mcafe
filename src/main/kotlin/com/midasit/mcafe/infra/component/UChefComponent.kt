@@ -122,13 +122,13 @@ class UChefComponent(
         return webClient.mutate().baseUrl(uChefDomain).build()
     }
 
-    private fun getUChefClient(path: String, vararg params: Any): String? {
+    private fun getUChefClient(path: String, vararg params: Any): String {
         return createUChefClient()
             .get()
             .uri(path, *params)
             .retrieve()
             .bodyToMono(String::class.java)
-            .block()
+            .block() ?: throw CustomException(ErrorMessage.INTERNAL_SERVER_ERROR)
     }
 
     private fun UChefMenuRs.parseMenuList(): List<MenuCategoryDto> {
@@ -163,7 +163,7 @@ class UChefComponent(
         }
     }
 
-    private fun <T> String?.toReadValue(clazz: Class<T>): T {
+    private fun <T> String.toReadValue(clazz: Class<T>): T {
         return objectMapper.readValue(this, clazz)
     }
 }
