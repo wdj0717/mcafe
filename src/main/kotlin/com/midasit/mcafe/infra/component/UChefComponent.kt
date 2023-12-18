@@ -44,7 +44,9 @@ class UChefComponent(
     @Value("\${u-chef.path.pay-order}")
     private val uChefPayOrderPath: String
 ) {
+    private var lastUpdate = 0L
     private var menuMap = HashMap<String, MenuInfoDto>()
+    private var menuList: List<MenuCategoryDto>? = null
 
     fun getMenuInfo(menuCode: String): MenuInfoDto {
         return menuMap[menuCode] ?: requestMenuInfo(menuCode)
@@ -65,9 +67,13 @@ class UChefComponent(
     }
 
     fun getMenuList(): List<MenuCategoryDto> {
-        val res = getUChefClient(uChefMenuPath, shopMemberSeq, getProjectSeq())
-        val uChefMenuRs = res.toReadValue(UChefMenuRs::class.java)
-        return uChefMenuRs.parseMenuList()
+        return menuList ?: run {
+            val res = getUChefClient(uChefMenuPath, shopMemberSeq, getProjectSeq())
+            val uChefMenuRs = res.toReadValue(UChefMenuRs::class.java)
+            menuList = uChefMenuRs.parseMenuList()
+            uChefMenuRs.parseMenuList()
+        }
+
     }
 
     fun payOrder(nickname: String, phone: String, orderList: List<Order>): String {
@@ -105,9 +111,17 @@ class UChefComponent(
         return menuInfoDto
     }
 
-    private fun getProjectSeq(): Int {
+    private fun getProjectSeq(): Long {
         val res = getUChefClient(uChefProjectSeqPath, shopMemberSeq)
         val uChefProjectSeqRs = res.toReadValue(UChefProjectSeqRs::class.java)
+
+        val lastUpdate = uChefProjectSeqRs.searchResult.memberData.lastUpdate
+        if (lastUpdate > this.lastUpdate) {
+            this.lastUpdate = lastUpdate
+            menuMap = HashMap<String, MenuInfoDto>()
+            menuList = null
+        }
+
         return uChefProjectSeqRs.searchResult.memberData.defaultProjectSeq
     }
 

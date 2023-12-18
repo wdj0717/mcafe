@@ -14,5 +14,7 @@ class SearchResult(
 
 class MemberData(
     @JsonProperty("default_project_seq")
-    val defaultProjectSeq: Int
+    val defaultProjectSeq: Long,
+    @JsonProperty("last_update")
+    val lastUpdate: Long
 )
