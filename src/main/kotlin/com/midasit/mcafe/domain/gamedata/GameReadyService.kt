@@ -16,9 +16,9 @@ class GameReadyService(
     @Transactional
     fun updateGameReadyStatus(memberSn: Long, roomSn: Long, gameType: GameType, @NotNull readyStatus: ReadyStatus) : GameReady {
 
-        val findGameReady = gameReadyRepository.findGameReadyByMemberSnAndRoomSnAndGameType(memberSn, roomSn, gameType)?: throw CustomException(ErrorMessage.NO_GAME_READY_STATUS)
-        findGameReady.updateReadyStatus(readyStatus)
-        return findGameReady
+        return gameReadyRepository.findGameReadyByMemberSnAndRoomSnAndGameType(memberSn, roomSn, gameType)?.also {
+            it.updateReadyStatus(readyStatus)
+        } ?: throw CustomException(ErrorMessage.NO_GAME_READY_STATUS)
     }
 
     fun getGameReadyStatusOfRoomMember(roomSn: Long, gameType: GameType): List<GameReady> {
