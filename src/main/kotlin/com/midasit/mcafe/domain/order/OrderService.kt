@@ -37,10 +37,7 @@ class OrderService(
 
         val order = findDuplicateOrder(member, room, request.menuCode, request.optionList)
         order?.addQuantity() ?: run {
-            val newOrder = Order(OrderStatus.PENDING, request.menuCode, member, room, 1)
-            request.optionList.forEach {
-                newOrder.addOption(it)
-            }
+            val newOrder = getNewOrder(request, member, room)
             return OrderDto.of(orderRepository.save(newOrder), uChefComponent.getMenuInfo(newOrder.menuCode))
         }
 
@@ -72,12 +69,29 @@ class OrderService(
         return true
     }
 
-    private fun findDuplicateOrder(member: Member, room: Room, menuCode: String, optionList: List<Long>): Order? {
+    private fun findDuplicateOrder(
+        member: Member,
+        room: Room,
+        menuCode: String,
+        optionList: List<Long>
+    ): Order? {
         val orderList =
             orderRepository.findByMemberAndRoomAndMenuCodeAndStatus(member, room, menuCode, OrderStatus.PENDING)
         return orderList.find { order ->
             val optionSet = order.orderOptions.map { it.optionValue }.toHashSet()
             optionSet == optionList.toHashSet()
         }
+    }
+
+    private fun getNewOrder(
+        request: OrderRequest.Create,
+        member: Member,
+        room: Room
+    ): Order {
+        val newOrder = Order(OrderStatus.PENDING, request.menuCode, member, room, 1)
+        request.optionList.forEach {
+            newOrder.addOption(it)
+        }
+        return newOrder
     }
 }

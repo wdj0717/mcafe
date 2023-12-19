@@ -4,6 +4,8 @@ import com.midasit.mcafe.domain.favoritemenu.dto.FavoriteMenuDto
 import com.midasit.mcafe.domain.member.MemberService
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.model.Member
+import com.midasit.mcafe.model.getRandomSn
+import com.midasit.mcafe.model.getRandomString
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -26,7 +28,7 @@ class FavoriteMenuServiceTest : BehaviorSpec({
     }
 
     given("member Sn이 주어지면") {
-        val memberSn = 1L
+        val memberSn = getRandomSn()
         val member = Member()
         val favoriteMenu = FavoriteMenu("test", member)
         every { memberService.findBySn(any()) } answers { member }
@@ -40,8 +42,8 @@ class FavoriteMenuServiceTest : BehaviorSpec({
     }
 
     given("memberSn과 menuCode가 주어지면") {
-        val memberSn = 1L
-        val menuCode = "test"
+        val memberSn = getRandomSn()
+        val menuCode = getRandomString(10)
         val member = Member()
         val favoriteMenu = FavoriteMenu(menuCode, member)
         every { memberService.findBySn(any()) } answers { member }
@@ -55,8 +57,8 @@ class FavoriteMenuServiceTest : BehaviorSpec({
     }
 
     given("memberSn과 Favorite Sn이 주어지면") {
-        val memberSn = 1L
-        val favoriteSn = 2L
+        val memberSn = getRandomSn()
+        val favoriteSn = getRandomSn()
         val member = Member()
         val favoriteMenu = FavoriteMenu("test", member)
 
@@ -81,7 +83,12 @@ class FavoriteMenuServiceTest : BehaviorSpec({
         }
 
         every { memberService.findBySn(any()) } answers { member }
-        every { favoriteMenuRepository.findByIdOrNull(any()) } answers { FavoriteMenu("test", Member(2L)) }
+        every { favoriteMenuRepository.findByIdOrNull(any()) } answers {
+            FavoriteMenu(
+                "test",
+                Member(memberSn = getRandomSn())
+            )
+        }
         When("해당 즐겨찾기가 다른 멤버의 것이면") {
             then("에러가 발생한다.") {
                 shouldThrow<CustomException> {

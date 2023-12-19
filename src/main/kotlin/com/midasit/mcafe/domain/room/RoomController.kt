@@ -2,7 +2,6 @@ package com.midasit.mcafe.domain.room
 
 import com.midasit.mcafe.domain.room.dto.RoomRequest
 import com.midasit.mcafe.domain.room.dto.RoomResponse
-import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.BaseController
 import io.swagger.v3.oas.annotations.Operation
@@ -107,8 +106,7 @@ class RoomController(val roomService: RoomService) : BaseController {
         authentication: Authentication
     ): Boolean {
         val memberSn = getMemberSn(authentication)
-        require(roomService.deleteRoom(memberSn, roomSn)) { throw CustomException(ErrorMessage.INVALID_ROOM_INFO) }
-
+        roomService.deleteRoom(memberSn, roomSn)
         return true
     }
 }

@@ -10,6 +10,11 @@ import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.Member
 import com.midasit.mcafe.model.PasswordEncryptUtil
 import com.midasit.mcafe.model.Role
+import com.midasit.mcafe.model.getRandomBoolean
+import com.midasit.mcafe.model.getRandomOf
+import com.midasit.mcafe.model.getRandomPhone
+import com.midasit.mcafe.model.getRandomSn
+import com.midasit.mcafe.model.getRandomString
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -20,7 +25,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.test.util.ReflectionTestUtils
 
 class MemberServiceTest : BehaviorSpec({
     val memberRepository = mockk<MemberRepository>(relaxed = true)
@@ -33,23 +37,57 @@ class MemberServiceTest : BehaviorSpec({
         memberRepository = memberRepository,
         jwtTokenProvider = jwtTokenProvider,
         redisTemplate = redisTemplate,
-        roomMemberRepository = roomMemberRepository)
+        roomMemberRepository = roomMemberRepository
+    )
 
     afterContainer {
         clearAllMocks()
     }
 
+    given("u chef 인증 정보가 주어지면") {
+        val request = MemberRequest.UChefAuth(getRandomPhone(), getRandomString(10), getRandomString(10))
+        val certKey = getRandomString(10)
+        every { uChefComponent.login(any(), any(), any()) } answers { certKey }
+        When("인증키를 요청하면") {
+            val result = memberService.getUChefAuth(request)
+            Then("인증키가 반환된다.") {
+                result shouldBe certKey
+            }
+        }
+    }
+
+    given("username이 주어지면") {
+        val username = getRandomString(10)
+        val boolean = getRandomBoolean()
+        every { memberRepository.existsByUsername(any()) } answers { boolean }
+        When("username 중복검사를 요청하면") {
+            val result = memberService.existsMemberByUsername(username)
+            Then("중복검사 결과가 반환된다.") {
+                result shouldBe boolean
+            }
+        }
+    }
+
     given("회원가입을 위한 정보를 받아온다.") {
-        val request = MemberRequest.Signup("username", "1q2w3e4r5t", "1q2w3e4r5t", "name", "certKey")
+        val password = getRandomString(10)
+        val request = MemberRequest.Signup(
+            username = getRandomString(10),
+            password = password,
+            passwordCheck = password,
+            nickname = getRandomString(10),
+            certKey = getRandomString(10)
+        )
+
         val member = Member(
-            phone = "010-1234-5678",
+            phone = getRandomPhone(),
             username = request.username,
             nickname = request.nickname,
             password = request.password,
-            role = Role.USER
+            role = getRandomOf(Role.values())
         )
-        ReflectionTestUtils.setField(member, "sn", 1L)
-        every { memberRepository.save(any()) } returns member
+        every { memberRepository.save(any()) } answers { member }
+        every { memberRepository.existsByUsername(any()) } answers { false }
+        every { redisTemplate.opsForValue().getAndDelete(any()) } answers { request.certKey }
         `when`("회원가입을 요청한다.") {
             val result = memberService.signup(request)
             then("회원가입이 완료된다.") {
@@ -57,31 +95,44 @@ class MemberServiceTest : BehaviorSpec({
                 result.phone shouldBe member.phone
             }
         }
+
+        every { memberRepository.existsByUsername(any()) } answers { true }
+        `when`("중복 아이디가 있을때 회원가입을 요청하면.") {
+            then("예외가 발생한다.") {
+                shouldThrow<CustomException> {
+                    memberService.signup(request)
+                }
+            }
+        }
+
+        every { memberRepository.existsByUsername(any()) } answers { false }
+        every { redisTemplate.opsForValue().getAndDelete(any()) } answers { null }
+        When("certKey가 존재하지 않으면") {
+            then("예외가 발생한다.") {
+                shouldThrow<CustomException> {
+                    memberService.signup(request)
+                }
+            }
+        }
     }
 
     given("로그인 정보를 받아온다.") {
-        var request = MemberRequest.Login("username", "1q2w3e4r5t")
-        val member = Member(
-            phone = "010-1234-1234",
-            username = request.username,
-            nickname = "name",
-            password = PasswordEncryptUtil.encrypt(request.password),
-            role = Role.USER
-        )
-        ReflectionTestUtils.setField(member, "sn", 1L)
+        var request = MemberRequest.Login(username = getRandomString(10), getRandomString(10))
+        val token = getRandomString(10)
+        val member = Member(username = request.username, password = PasswordEncryptUtil.encrypt(request.password))
         `when`("로그인 정보가 있을때") {
-            every { memberRepository.findByUsername(any()) } returns member
-            every { jwtTokenProvider.generateAccessToken(any()) } returns "token"
+            every { memberRepository.findByUsername(any()) } answers { member }
+            every { jwtTokenProvider.generateAccessToken(any()) } answers { token }
             val result = memberService.login(request)
             then("로그인이 완료된다.") {
                 result.name shouldBe member.nickname
                 result.phone shouldBe member.phone
-                result.token shouldBe "token"
+                result.token shouldBe token
             }
         }
 
         `when`("로그인 정보가 없을때") {
-            every { memberRepository.findByUsername(any()) } returns null
+            every { memberRepository.findByUsername(any()) } answers { null }
             val exception = shouldThrow<Exception> {
                 memberService.login(request)
             }
@@ -90,9 +141,9 @@ class MemberServiceTest : BehaviorSpec({
             }
         }
 
-        request = MemberRequest.Login("username", "1q2w3e4r")
+        request = MemberRequest.Login(getRandomString(10), getRandomString(10))
         `when`("비밀번호가 틀렸을때") {
-            every { memberRepository.findByUsername(any()) } returns member
+            every { memberRepository.findByUsername(any()) } answers { member }
             val exception = shouldThrow<Exception> {
                 memberService.login(request)
             }
@@ -103,7 +154,7 @@ class MemberServiceTest : BehaviorSpec({
     }
 
     given("멤버 sn이 주어지면") {
-        val memberSn = 1L
+        val memberSn = getRandomSn()
         val member = Member()
         every { memberRepository.getOrThrow(any()) } answers { member }
         When("내 정보를 조회하였을 때") {
@@ -115,8 +166,8 @@ class MemberServiceTest : BehaviorSpec({
     }
 
     given("멤버 sn과 nickname이 주어지면") {
-        val memberSn = 1L
-        val nickname = "nickname"
+        val memberSn = getRandomSn()
+        val nickname = getRandomString(10)
         val member = Member()
         every { memberRepository.getOrThrow(any()) } answers { member }
         When("닉네임을 변경하였을 때") {
@@ -128,7 +179,7 @@ class MemberServiceTest : BehaviorSpec({
     }
 
     given("멤버 sn이 주어지면") {
-        val memberSn = 1L
+        val memberSn = getRandomSn()
         val member = mockk<Member>()
         every { memberRepository.getOrThrow(any()) } answers { member }
         every { member.delete() } just Runs
@@ -143,21 +194,20 @@ class MemberServiceTest : BehaviorSpec({
     }
 
     given("멤버 sn과 패스워드, 패스워드 확인이 주어지면") {
-        val memberSn = 1L
-        val password = "1q2w3e4r5t"
-        val passwordCheck = "1q2w3e4r5t"
+        val memberSn = getRandomSn()
+        val password = getRandomString(10)
         val member = Member()
         every { memberRepository.getOrThrow(any()) } answers { member }
         When("패스워드를 변경하였을 때") {
             Then("정상적으로 변경된다.") {
-                memberService.updatePassword(memberSn, password, passwordCheck)
+                memberService.updatePassword(memberSn, password, password)
             }
         }
 
         When("패스워드가 일치하지 않을 때") {
             every { memberRepository.getOrThrow(any()) } answers { member }
             val exception = shouldThrow<CustomException> {
-                memberService.updatePassword(memberSn, password, "1q2w3e4r")
+                memberService.updatePassword(memberSn, password, getRandomString(10))
             }
             Then("예외가 발생한다.") {
                 exception.message shouldBe ErrorMessage.INVALID_PASSWORD_CHECK.message

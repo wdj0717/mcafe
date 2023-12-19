@@ -31,6 +31,7 @@ enum class ErrorMessage(
 
     //즐겨찾기
     INVALID_MEMBER("잘못된 회원입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_FAVORITE_MENU("잘못된 즐겨찾기 메뉴입니다.", HttpStatus.BAD_REQUEST),
 
     // 게임
     NO_GAME_READY_STATUS("게임 준비 상태가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
