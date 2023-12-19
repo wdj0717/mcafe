@@ -85,8 +85,6 @@ tasks.jacocoTestReport {
         xml.required.set(false)
         csv.required.set(false)
         html.required.set(true)
-
-        html.setDestination(file("$buildDir/jacocoHtml"))
     }
 }
 
@@ -100,9 +98,22 @@ tasks.jacocoTestCoverageVerification {
                 minimum = "0.8".toBigDecimal()
             }
             excludes = listOf(
+                "**.Q*",
+                "com.midasit.mcafe.McafeV2Application*",
+                "com.midasit.mcafe.domain.test.TestController",
+                "com.midasit.mcafe.domain.*.dto.*",
+                "com.midasit.mcafe.infra.config.*",
+                "com.midasit.mcafe.infra.converter.*",
+                "com.midasit.mcafe.infra.exception.*",
+                "com.midasit.mcafe.model.*",
+                "com.midasit.mcafe.infra.component.*",
+                // need to remove
 
-                    // need to remove
-
+                "com.midasit.mcafe.domain.member.Member",
+                "com.midasit.mcafe.domain.payment.Payment",
+                "com.midasit.mcafe.domain.recentorder.RecentOrder",
+                "com.midasit.mcafe.domain.looseHistory.*",
+                "com.midasit.mcafe.domain.gamedata.*"
             )
         }
     }

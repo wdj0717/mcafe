@@ -4,6 +4,8 @@ import com.midasit.mcafe.domain.favoritemenu.dto.FavoriteMenuDto
 import com.midasit.mcafe.domain.favoritemenu.dto.FavoriteMenuRequest
 import com.midasit.mcafe.domain.favoritemenu.dto.FavoriteMenuResponse
 import com.midasit.mcafe.model.ControllerTest
+import com.midasit.mcafe.model.getRandomSn
+import com.midasit.mcafe.model.getRandomString
 import io.kotest.matchers.collections.shouldExist
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -30,8 +32,8 @@ class FavoriteControllerTest : ControllerTest() {
 
     init {
         given("member Sn이 주어졌을 경우") {
-            val memberSn = 1L
-            val favoriteMenuDto = FavoriteMenuDto(1L, "test", memberSn)
+            val memberSn = getRandomSn()
+            val favoriteMenuDto = FavoriteMenuDto(getRandomSn(), getRandomString(10), memberSn)
             every { favoriteMenuService.findFavoriteMenu(any()) } answers { listOf(favoriteMenuDto) }
             When("해당 member의 즐겨찾기 메뉴 API를 조회하면") {
                 val response = perform(
@@ -45,9 +47,9 @@ class FavoriteControllerTest : ControllerTest() {
         }
 
         given("memberSn과 menuCode가 주어졌을 경우") {
-            val memberSn = 1L
-            val request = FavoriteMenuRequest.Create("test")
-            val favoriteMenuDto = FavoriteMenuDto(1L, request.menuCode, memberSn)
+            val memberSn = getRandomSn()
+            val request = FavoriteMenuRequest.Create(getRandomString(10))
+            val favoriteMenuDto = FavoriteMenuDto(getRandomSn(), request.menuCode, memberSn)
             every { favoriteMenuService.createFavoriteMenu(any(), any()) } answers { favoriteMenuDto }
             When("해당 member의 즐겨찾기 메뉴를 추가하면") {
                 val response = perform(
@@ -63,7 +65,7 @@ class FavoriteControllerTest : ControllerTest() {
         }
 
         given("menuCode가 주어지면") {
-            val favoriteSn = 2L
+            val favoriteSn = getRandomSn()
             every { favoriteMenuService.deleteFavoriteMenu(any(), any()) } just Runs
             When("해당 member의 즐겨찾기 메뉴를 삭제 API를 호출하면") {
                 perform(

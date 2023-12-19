@@ -37,10 +37,6 @@ class RoomService(
         return RoomDto.of(createdRoom)
     }
 
-    private fun duplicateRoomName(name: String): Boolean {
-        return !roomRepository.existsByNameAndStatusNot(name, RoomStatus.CLOSED)
-    }
-
     fun getRoomList(): List<RoomDto> {
         val roomList = roomRepository.findAllByStatusNot(RoomStatus.CLOSED)
         return roomList.map { RoomDto.of(it) }
@@ -92,7 +88,7 @@ class RoomService(
         val room = this.findBySn(roomSn)
         validate(ErrorMessage.INVALID_ROOM_INFO) { room.status != RoomStatus.CLOSED }
         validate(ErrorMessage.INVALID_ROOM_INFO) { room.host.sn == member.sn }
-        validate(ErrorMessage.INVALID_ROOM_INFO) { status != RoomStatus.PRIVATE || password != null  }
+        validate(ErrorMessage.INVALID_ROOM_INFO) { status != RoomStatus.PRIVATE || password != null }
 
         room.updateRoom(name, status, password)
 
@@ -132,5 +128,9 @@ class RoomService(
 
     fun findBySn(roomSn: Long): Room {
         return roomRepository.getOrThrow(roomSn)
+    }
+
+    private fun duplicateRoomName(name: String): Boolean {
+        return !roomRepository.existsByNameAndStatusNot(name, RoomStatus.CLOSED)
     }
 }
