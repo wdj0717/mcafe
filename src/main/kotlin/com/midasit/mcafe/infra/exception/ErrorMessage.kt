@@ -27,7 +27,7 @@ enum class ErrorMessage(
     UCHEF_ORDER_FAILED("m cafe 주문에 실패하였습니다.", HttpStatus.BAD_REQUEST),
 
     // 주문
-    EMPTY_ORDER_LIST("장바구니가 비어있습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_ORDER_LIST("유효하지 않은 주문번호가 포함되어 있습니다.", HttpStatus.BAD_REQUEST),
 
     //즐겨찾기
     INVALID_MEMBER("잘못된 회원입니다.", HttpStatus.BAD_REQUEST),

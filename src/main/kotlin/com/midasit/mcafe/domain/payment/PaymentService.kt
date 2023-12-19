@@ -29,7 +29,7 @@ class PaymentService(
         roomService.checkMemberInRoom(member, room)
 
         val orderList = orderRepository.findByRoomAndSnInAndStatus(room, orderSnList, OrderStatus.PENDING)
-        validate(ErrorMessage.EMPTY_ORDER_LIST) { orderList.isNotEmpty() }
+        validate(ErrorMessage.INVALID_ORDER_LIST) { orderList.size == orderSnList.size }
 
         val orderNo = uChefComponent.payOrder(member.nickname, member.phone, orderList)
 
