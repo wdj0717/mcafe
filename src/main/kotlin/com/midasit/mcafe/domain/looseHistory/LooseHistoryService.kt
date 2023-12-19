@@ -33,8 +33,6 @@ class LooseHistoryService(
         looseHistoryRepository.save(LooseHistory(member, room, gameType))
 
         this.payOrder(member, room, gameType, ReadyStatus.READY)
-        // 방의 게임 준비 상태 ready 인 사람 모두 삭제
-        gameReadyService.deleteGameReadyStatusByRoomAndGameTypeAndReadyStatus(room, GameType.PINBALL, ReadyStatus.READY)
 
     }
 
