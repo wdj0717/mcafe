@@ -1,6 +1,7 @@
 package com.midasit.mcafe.domain.looseHistory
 
 import com.midasit.mcafe.domain.gamedata.GameReadyRepository
+import com.midasit.mcafe.domain.gamedata.GameReadyService
 import com.midasit.mcafe.domain.looseHistory.dto.LooseHistoryDto
 import com.midasit.mcafe.domain.looseHistory.dto.LooseHistoryRequest
 import com.midasit.mcafe.domain.member.Member
@@ -20,6 +21,7 @@ class LooseHistoryService(
     val memberService: MemberService,
     val roomService: RoomService,
     val paymentService: PaymentService,
+    val gameReadyService: GameReadyService,
     val looseHistoryRepository: LooseHistoryRepository,
     val gameReadyRepository: GameReadyRepository,
 ) {
@@ -31,6 +33,9 @@ class LooseHistoryService(
         looseHistoryRepository.save(LooseHistory(member, room, gameType))
 
         this.payOrder(member, room, gameType, ReadyStatus.READY)
+        // 방의 게임 준비 상태 ready 인 사람 모두 삭제
+        gameReadyService.deleteGameReadyStatusByRoomAndGameTypeAndReadyStatus(room, GameType.PINBALL, ReadyStatus.READY)
+
     }
 
     fun getLooseHistory(memberSns: List<Long>,

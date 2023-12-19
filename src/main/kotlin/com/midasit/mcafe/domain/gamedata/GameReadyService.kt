@@ -1,5 +1,7 @@
 package com.midasit.mcafe.domain.gamedata
 
+import com.midasit.mcafe.domain.member.Member
+import com.midasit.mcafe.domain.room.Room
 import com.midasit.mcafe.infra.exception.CustomException
 import com.midasit.mcafe.infra.exception.ErrorMessage
 import com.midasit.mcafe.model.GameType
@@ -23,5 +25,15 @@ class GameReadyService(
 
     fun getGameReadyStatusOfRoomMember(roomSn: Long, gameType: GameType): List<GameReady> {
         return gameReadyRepository.findGameReadyByRoomSnAndGameType(roomSn, gameType)
+    }
+
+    @Transactional
+    fun createGameReady(member: Member, room: Room, gameType: GameType) : GameReady {
+        return gameReadyRepository.save(GameReady(member, room, gameType))
+    }
+
+    @Transactional
+    fun deleteGameReadyStatusByRoomAndGameTypeAndReadyStatus(room: Room, gameType: GameType, readyStatus: ReadyStatus) {
+        gameReadyRepository.deleteGameReadyByRoomAndGameTypeAndReadyStatus(room, gameType, readyStatus)
     }
 }

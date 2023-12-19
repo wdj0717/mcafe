@@ -1,5 +1,6 @@
 package com.midasit.mcafe.domain.order
 
+import com.midasit.mcafe.domain.gamedata.GameReadyService
 import com.midasit.mcafe.domain.member.Member
 import com.midasit.mcafe.domain.member.MemberService
 import com.midasit.mcafe.domain.order.dto.OrderDto
@@ -8,6 +9,7 @@ import com.midasit.mcafe.domain.order.dto.OrderResponse
 import com.midasit.mcafe.domain.room.Room
 import com.midasit.mcafe.domain.room.RoomService
 import com.midasit.mcafe.infra.component.UChefComponent
+import com.midasit.mcafe.model.GameType
 import com.midasit.mcafe.model.OrderStatus
 import com.midasit.mcafe.model.validate
 import org.springframework.stereotype.Service
@@ -18,7 +20,8 @@ class OrderService(
     private val uChefComponent: UChefComponent,
     private val orderRepository: OrderRepository,
     private val roomService: RoomService,
-    private val memberService: MemberService
+    private val memberService: MemberService,
+    private val gameReadyService: GameReadyService
 ) {
 
     fun getMenuList(): OrderResponse.GetMenuList {
@@ -35,6 +38,9 @@ class OrderService(
         val room = roomService.findBySn(request.roomSn)
         roomService.checkMemberInRoom(member, room)
 
+        // 게임 준비 상태로 변경
+        gameReadyService.createGameReady(member, room, GameType.PINBALL)
+
         val order = findDuplicateOrder(member, room, request.menuCode, request.optionList)
         order?.addQuantity() ?: run {
             val newOrder = Order(OrderStatus.PENDING, request.menuCode, member, room, 1)
@@ -43,6 +49,8 @@ class OrderService(
             }
             return OrderDto.of(orderRepository.save(newOrder), uChefComponent.getMenuInfo(newOrder.menuCode))
         }
+
+
 
         return OrderDto.of(order, uChefComponent.getMenuInfo(order.menuCode))
     }
