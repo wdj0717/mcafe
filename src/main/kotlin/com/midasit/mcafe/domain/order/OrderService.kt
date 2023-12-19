@@ -38,9 +38,6 @@ class OrderService(
         val room = roomService.findBySn(request.roomSn)
         roomService.checkMemberInRoom(member, room)
 
-        // 게임 준비 상태로 변경
-        gameReadyService.createGameReady(member, room, GameType.PINBALL)
-
         val order = findDuplicateOrder(member, room, request.menuCode, request.optionList)
         order?.addQuantity() ?: run {
             val newOrder = getNewOrder(request, member, room)
@@ -100,6 +97,10 @@ class OrderService(
         request.optionList.forEach {
             newOrder.addOption(it)
         }
+
+        // 게임 준비 상태로 변경
+        gameReadyService.createGameReady(member, room, GameType.PINBALL)
+
         return newOrder
     }
 }
