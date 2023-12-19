@@ -28,6 +28,7 @@ class PaymentService(
         val room = roomService.findBySn(roomSn)
         roomService.checkMemberInRoom(member, room)
 
+        validate(ErrorMessage.INVALID_ORDER_LIST) { orderSnList.isNotEmpty() }
         val orderList = orderRepository.findByRoomAndSnInAndStatus(room, orderSnList, OrderStatus.PENDING)
         validate(ErrorMessage.INVALID_ORDER_LIST) { orderList.size == orderSnList.size }
 
