@@ -1,7 +1,6 @@
 package com.midasit.mcafe.domain.looseHistory
 
 import com.midasit.mcafe.domain.gamedata.GameReadyRepository
-import com.midasit.mcafe.domain.gamedata.GameReadyService
 import com.midasit.mcafe.domain.looseHistory.dto.LooseHistoryDto
 import com.midasit.mcafe.domain.looseHistory.dto.LooseHistoryRequest
 import com.midasit.mcafe.domain.member.Member
