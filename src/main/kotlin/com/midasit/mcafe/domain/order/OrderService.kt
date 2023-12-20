@@ -69,6 +69,8 @@ class OrderService(
         val order = orderRepository.getOrThrow(orderSn)
         validate { room.host.sn == member.sn || order.member.sn == member.sn }
 
+        // 주문 삭제시 게임 준비 상태도 삭제
+        gameReadyService.deleteGameReadyStatusByRoomAndMemberAndGameType(room, order.member, GameType.PINBALL)
         orderRepository.delete(order)
 
         return true
