@@ -36,4 +36,9 @@ class GameReadyService(
     fun deleteGameReadyStatusByRoomAndGameTypeAndReadyStatus(room: Room, gameType: GameType, readyStatus: ReadyStatus) {
         gameReadyRepository.deleteGameReadyByRoomAndGameTypeAndReadyStatus(room, gameType, readyStatus)
     }
+
+    @Transactional
+    fun deleteGameReadyStatusByRoomAndMemberAndGameType(room: Room, member: Member, gameType: GameType) {
+        gameReadyRepository.deleteGameReadyByRoomAndMemberAndGameType(room, member, gameType)
+    }
 }

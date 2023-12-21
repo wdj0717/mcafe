@@ -6,6 +6,7 @@ import com.midasit.mcafe.model.BaseController
 import com.midasit.mcafe.model.GameType
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -17,14 +18,26 @@ class GameReadyController(
 
     @Operation(summary = "게임 준비 상태 업데이트")
     @PutMapping("/ready")
-    fun putGameReadyStatus(@RequestBody request: GameDataRequest.Put) : GameDataResponse.Result {
-        return GameDataResponse.Result.of(gameReadyService.updateGameReadyStatus(request.memberSn, request.roomSn, request.gameType, request.readyStatus))
+    fun putGameReadyStatus(
+        authentication: Authentication,
+        @RequestBody request: GameDataRequest.Put
+    ): GameDataResponse.Result {
+        return GameDataResponse.Result.of(
+            gameReadyService.updateGameReadyStatus(
+                getMemberSn(authentication),
+                request.roomSn,
+                request.gameType,
+                request.readyStatus
+            )
+        )
     }
 
     @Operation(summary = "게임 준비 상태 조회")
     @GetMapping("/ready")
-    fun getGameReadyStatusOfRoomMember(@RequestParam roomSn: Long,
-                                       @RequestParam gameType: GameType): GameDataResponse.Results {
+    fun getGameReadyStatusOfRoomMember(
+        @RequestParam roomSn: Long,
+        @RequestParam gameType: GameType
+    ): GameDataResponse.Results {
         return GameDataResponse.Results.of(gameReadyService.getGameReadyStatusOfRoomMember(roomSn, gameType))
     }
 }
