@@ -30,7 +30,7 @@ class LooseHistoryService(
         val gameType = request.gameType
         looseHistoryRepository.save(LooseHistory(member, room, gameType))
 
-        this.payOrder(member, room, gameType, ReadyStatus.READY)
+//        this.payOrder(member, room, gameType, ReadyStatus.READY)
     }
 
     fun getLooseHistory(memberSns: List<Long>,
