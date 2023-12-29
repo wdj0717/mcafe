@@ -38,13 +38,11 @@ class OrderService(
         val room = roomService.findBySn(request.roomSn)
         roomService.checkMemberInRoom(member, room)
 
-        val order = findDuplicateOrder(member, room, request.menuCode, request.optionList)
+        val order = findDuplicateOrder(member, room, request.menuCode, request.optionList, request.memo)
         order?.addQuantity() ?: run {
             val newOrder = getNewOrder(request, member, room)
             return OrderDto.of(orderRepository.save(newOrder), uChefComponent.getMenuInfo(newOrder.menuCode))
         }
-
-
 
         return OrderDto.of(order, uChefComponent.getMenuInfo(order.menuCode))
     }
@@ -80,10 +78,25 @@ class OrderService(
         member: Member,
         room: Room,
         menuCode: String,
-        optionList: List<Long>
+        optionList: List<Long>,
+        memo: String?
     ): Order? {
-        val orderList =
-            orderRepository.findByMemberAndRoomAndMenuCodeAndStatus(member, room, menuCode, OrderStatus.PENDING)
+        val orderList = memo?.let {
+            orderRepository.findByMemberAndRoomAndMenuCodeAndStatusAndMemo(
+                member,
+                room,
+                menuCode,
+                OrderStatus.PENDING,
+                it
+            )
+        } ?: run {
+            orderRepository.findByMemberAndRoomAndMenuCodeAndStatusAndMemoIsNull(
+                member,
+                room,
+                menuCode,
+                OrderStatus.PENDING
+            )
+        }
         return orderList.find { order ->
             val optionSet = order.orderOptions.map { it.optionValue }.toHashSet()
             optionSet == optionList.toHashSet()
@@ -95,7 +108,7 @@ class OrderService(
         member: Member,
         room: Room
     ): Order {
-        val newOrder = Order(OrderStatus.PENDING, request.menuCode, member, room, 1)
+        val newOrder = Order(OrderStatus.PENDING, request.menuCode, member, room, 1, request.memo)
         request.optionList.forEach {
             newOrder.addOption(it)
         }

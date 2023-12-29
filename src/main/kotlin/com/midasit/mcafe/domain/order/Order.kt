@@ -19,13 +19,15 @@ class Order(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_sn", nullable = false, foreignKey = ForeignKey(name = "fk_order_room_sn"))
     val room: Room,
-    quantity: Long
+    quantity: Long,
+    memo: String?
 ) : BaseEntity() {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     var status: OrderStatus = status
         protected set
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_sn", foreignKey = ForeignKey(name = "fk_order_payment_sn"))
     var payment: Payment? = null
@@ -33,6 +35,10 @@ class Order(
 
     @Column(name = "qauntity")
     var quantity: Long = 1
+        protected set
+
+    @Column(name = "memo", length = 100)
+    var memo: String? = null
         protected set
 
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)

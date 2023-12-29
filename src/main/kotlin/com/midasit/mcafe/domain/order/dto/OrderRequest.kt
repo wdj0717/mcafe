@@ -11,10 +11,12 @@ class OrderRequest {
         @Schema(description = "방 sn")
         val roomSn: Long,
         @Schema(description = "옵션 목록")
-        val optionList: List<Long>
+        val optionList: List<Long>,
+        @Schema(description = "메모")
+        val memo: String?
     )
 
-    @Schema(name = "OrderRequestUpdateQuantity", description = "주문 생성 요청 객체")
+    @Schema(name = "OrderRequestUpdateQuantity", description = "주문 수량 변경 객체")
     class UpdateQuantity(
         @Schema(description = "메뉴 코드")
         val quantity: Long,

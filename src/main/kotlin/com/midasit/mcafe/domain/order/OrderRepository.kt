@@ -12,7 +12,15 @@ fun OrderRepository.getOrThrow(sn: Long): Order =
     findByIdOrNull(sn) ?: throw CustomException(ErrorMessage.INVALID_REQUEST)
 
 interface OrderRepository : JpaRepository<Order, Long> {
-    fun findByMemberAndRoomAndMenuCodeAndStatus(
+    fun findByMemberAndRoomAndMenuCodeAndStatusAndMemo(
+        member: Member,
+        room: Room,
+        menuCode: String,
+        status: OrderStatus,
+        memo: String
+    ): List<Order>
+
+    fun findByMemberAndRoomAndMenuCodeAndStatusAndMemoIsNull(
         member: Member,
         room: Room,
         menuCode: String,
