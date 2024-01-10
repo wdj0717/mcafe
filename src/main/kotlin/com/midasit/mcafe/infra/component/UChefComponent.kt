@@ -169,9 +169,28 @@ class UChefComponent(
     }
 
     private fun List<Order>.makeOrderRqList(): List<OrderRq> {
-        return map {
-            OrderRq.of(it, getMenuInfo(it.menuCode))
+        val orderMap: MutableMap<String, MutableList<OrderRq>> = mutableMapOf()
+
+        this.forEach { order ->
+            val menuCode = order.menuCode
+            val menuInfo = getMenuInfo(menuCode)
+            val orderRq = OrderRq.of(order, menuInfo)
+            val existingOrders = orderMap.getOrPut(menuCode) {
+                mutableListOf(orderRq)
+            }
+
+            val duplicateOrder = existingOrders.firstOrNull { existingOrder ->
+                existingOrder.makeOptionValueSet() == orderRq.makeOptionValueSet()
+            }
+
+            duplicateOrder?.addMenuQty() ?: existingOrders.add(orderRq)
         }
+
+        return orderMap.values.flatten().toList()
+    }
+
+    private fun OrderRq.makeOptionValueSet(): Set<Long> {
+        return optionList.map { it[0] as Long }.toSet()
     }
 
     private fun <T> String.toReadValue(clazz: Class<T>): T {

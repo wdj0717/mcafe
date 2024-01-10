@@ -16,7 +16,7 @@ class OrderRq(
     @JsonProperty("unit_price")
     val unitPrice: Long,
     @JsonProperty("menu_qty")
-    val menuQty: Long,
+    var menuQty: Long,
     @JsonProperty("memo")
     val memo: String = "",
     @JsonProperty("optionlist")
@@ -24,6 +24,9 @@ class OrderRq(
     @JsonIgnore
     val couponAmount: Long
 ) {
+    fun addMenuQty() {
+        this.menuQty++
+    }
     companion object {
         fun of(order: Order, menuInfoDto: MenuInfoDto): OrderRq {
             var couponAmount = menuInfoDto.price
