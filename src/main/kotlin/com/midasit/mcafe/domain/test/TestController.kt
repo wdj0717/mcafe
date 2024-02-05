@@ -15,6 +15,7 @@ class TestController(private val uChefComponent: UChefComponent) {
     @GetMapping("/test")
     @Operation(summary = "테스트")
     fun test(): String {
+        println("test")
         return "test"
     }
 
